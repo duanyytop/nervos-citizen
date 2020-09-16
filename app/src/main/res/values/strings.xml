@@ -28,9 +28,7 @@
     <string name="check_input">Check input</string>
 
     <!--Main Activity-->
-    <string name="start_OCR">Scan travel document</string>
-    <string name="title_activity_result">Voting pass</string>
-    <string name="edit_election">Change election</string>
+    <string name="start_OCR">Scan ePassport</string>
 
     <!--Result Activity-->
     <string name="proceed_home">Next person</string>
