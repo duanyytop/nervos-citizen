@@ -76,7 +76,7 @@ object Util {
             val hexArray = "0123456789ABCDEF".toCharArray()
             val hexChars = CharArray(bArray.size * 2)
             for (j in bArray.indices) {
-                val v: Int = bArray[j].toInt()
+                val v: Int = bArray[j].toInt() and 0xFF
                 hexChars[j * 2] = hexArray[v ushr 4]
                 hexChars[j * 2 + 1] = hexArray[v and 0x0F]
             }

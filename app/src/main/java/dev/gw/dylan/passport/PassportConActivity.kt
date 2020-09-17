@@ -21,15 +21,19 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import com.google.android.material.snackbar.Snackbar
 import dev.gw.dylan.R
+import dev.gw.dylan.passport.PassportCrypto.publicKeyToPemFormat
+import dev.gw.dylan.passport.PassportCrypto.signTxHash
+import dev.gw.dylan.passport.PassportCrypto.verifyTxHashSignature
+import dev.gw.dylan.utils.Util
 import dev.gw.dylan.wallet.MainActivity.Companion.GET_DOC_INFO
 import org.jmrtd.PassportService
 import org.spongycastle.jce.provider.BouncyCastleProvider
 import java.security.Security
-import java.util.Arrays
+import java.util.Locale
 
 class PassportConActivity : AppCompatActivity() {
     companion object {
-        private const val TAG = "PassportConActivity"
+        private const val TAG = "Passport"
 
         /**
          * Setup the recognition of nfc tags when the activity is opened (foreground)
@@ -144,15 +148,19 @@ class PassportConActivity : AppCompatActivity() {
 
                 // Get public key from dg15
                 val pubKey = pcon.getAAPublicKey(ps)
+                Log.d(TAG, "Public key with pem format: ${publicKeyToPemFormat(pubKey)}")
 
-                // Get voter information from dg1
+                // Get person information from dg1
                 val person = pcon.getPerson(ps)
-                Log.d("Passport", pubKey.toString())
-                Toast.makeText(
-                    this,
-                    "Public key: " + pubKey.toString() + " name: " + person.firstName,
-                    Toast.LENGTH_LONG
-                ).show()
+
+                val origin = Util.hexStringToByteArray("b30d0d9fa0c8bbdf27a746ef51d83114fbce7054d8818ececb84ec129e350725")
+                val signature = signTxHash(origin, pcon)
+                Log.d(TAG, "Tx Hash signature: ${Util.byteArrayToHexString(signature)}")
+
+                val result = verifyTxHashSignature(pubKey, origin, signature)
+                Log.d(TAG, "Verify signature: $result")
+
+                Toast.makeText(this," name: " + person.firstName, Toast.LENGTH_LONG).show()
             } catch (ex: Exception) {
                 handleConnectionFailed(ex)
             } finally {
@@ -170,10 +178,11 @@ class PassportConActivity : AppCompatActivity() {
      * Display error messages to the user accordingly.
      * @param e - The exception that was raised when the passportconnectoin failed
      */
-    fun handleConnectionFailed(e: Exception) {
-        if (e.toString().toLowerCase().contains("authentication failed")) {
+    private fun handleConnectionFailed(e: Exception) {
+        Log.d(TAG, e.toString())
+        if (e.toString().toLowerCase(Locale.ROOT).contains("authentication failed")) {
             progressView!!.setImageResource(R.drawable.nfc_icon_empty)
-        } else if (e.toString().toLowerCase().contains("tag was lost")) {
+        } else if (e.toString().toLowerCase(Locale.ROOT).contains("tag was lost")) {
             Toast.makeText(this, getString(R.string.NFC_error), Toast.LENGTH_LONG).show()
             progressView!!.setImageResource(R.drawable.nfc_icon_empty)
         } else {
@@ -214,17 +223,6 @@ class PassportConActivity : AppCompatActivity() {
             )
             nfcDisabledSnackbar.show()
         }
-    }
-
-    @Throws(Exception::class)
-    fun signTxHash(txHash: ByteArray?, pcon: PassportConnection): ByteArray {
-        val multiSignature = ByteArray(320)
-        var hashPart: ByteArray?
-        for (i in 0..3) {
-            hashPart = Arrays.copyOfRange(txHash, i * 8, i * 8 + 8)
-            System.arraycopy(pcon.signData(hashPart), 0, multiSignature, i * 80, 80)
-        }
-        return multiSignature
     }
 
     /**
