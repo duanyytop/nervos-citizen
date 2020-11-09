@@ -40,7 +40,7 @@
 
         <activity
             android:name="dev.gw.dylan.passport.PassportConActivity"
-            android:label="@string/passportconnection"
+            android:label="@string/passport_connection"
             android:screenOrientation="portrait" />
         <activity android:name="dev.gw.dylan.camera.CameraActivity" />
     </application>

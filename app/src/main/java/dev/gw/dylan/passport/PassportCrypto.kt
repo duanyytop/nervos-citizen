@@ -1,12 +1,21 @@
 package dev.gw.dylan.passport
 
+import dev.gw.dylan.utils.PASSPORT_LOCK_CODE_HASH
+import dev.gw.dylan.utils.Util
 import org.bouncycastle.util.io.pem.PemObject
 import org.bouncycastle.util.io.pem.PemWriter
 import org.jmrtd.JMRTDSecurityProvider
+import org.nervos.ckb.address.Network
+import org.nervos.ckb.crypto.Hash
+import org.nervos.ckb.type.Script
+import org.nervos.ckb.utils.Numeric
+import org.nervos.ckb.utils.address.AddressGenerator
 import java.io.StringWriter
+import java.math.BigInteger
 import java.security.MessageDigest
 import java.security.PublicKey
 import java.security.Signature
+import java.security.interfaces.RSAPublicKey
 import java.util.Arrays
 import javax.crypto.Cipher
 
@@ -61,8 +70,23 @@ object PassportCrypto {
         val digestLength = aaDigest.digestLength /* should always be 20 */
         val plaintext = aaCipher.doFinal(signature)
         val m1: ByteArray = org.jmrtd.Util.recoverMessage(digestLength, plaintext)
+        println(Util.byteArrayToHexString(m1))
         aaSignature.update(m1)
         aaSignature.update(origin)
         return aaSignature.verify(signature)
+    }
+
+
+    private fun pubKeyToBlake160(pubKey: RSAPublicKey): String {
+        val modulus = pubKey.modulus.toByteArray()
+        val publicExponent = pubKey.publicExponent.toByteArray()
+        val prefix = BigInteger.valueOf(publicExponent.size.toLong()).toByteArray()
+        return Numeric.toHexString(Hash.blake2b(prefix + modulus + publicExponent))
+    }
+
+    fun pubKeyToAddress(pubKey: RSAPublicKey): String {
+        val args = pubKeyToBlake160(pubKey)
+        val lockScript = Script(PASSPORT_LOCK_CODE_HASH, args, Script.TYPE)
+        return AddressGenerator.generateFullAddress(Network.TESTNET, lockScript)
     }
 }

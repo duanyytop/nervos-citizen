@@ -15,20 +15,19 @@ import android.provider.Settings
 import android.util.Log
 import android.view.View
 import android.widget.ImageView
+import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import com.google.android.material.snackbar.Snackbar
 import dev.gw.dylan.R
-import dev.gw.dylan.passport.PassportCrypto.publicKeyToPemFormat
-import dev.gw.dylan.passport.PassportCrypto.signTxHash
-import dev.gw.dylan.passport.PassportCrypto.verifyTxHashSignature
-import dev.gw.dylan.utils.Util
+import dev.gw.dylan.passport.PassportCrypto.pubKeyToAddress
 import dev.gw.dylan.wallet.MainActivity.Companion.GET_DOC_INFO
 import org.jmrtd.PassportService
 import org.spongycastle.jce.provider.BouncyCastleProvider
 import java.security.Security
+import java.security.interfaces.RSAPublicKey
 import java.util.Locale
 
 class PassportConActivity : AppCompatActivity() {
@@ -71,7 +70,9 @@ class PassportConActivity : AppCompatActivity() {
     // Adapter for NFC connection
     private var mNfcAdapter: NfcAdapter? = null
     private var documentData: DocumentData? = null
-    private var progressView: ImageView? = null
+    private var progressBar: ProgressBar? = null
+    private var resultImage: ImageView? = null
+    private var resultMessage: TextView? = null
     private var thisActivity: PassportConActivity? = null
 
     /**
@@ -81,17 +82,15 @@ class PassportConActivity : AppCompatActivity() {
      */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val extras = intent.extras
-        documentData = extras!![DocumentData.Companion.Identifier] as DocumentData?
+        documentData = intent.extras!![DocumentData.Companion.Identifier] as DocumentData?
         thisActivity = this
         setContentView(R.layout.activity_passport_con)
-        val appBar = findViewById<View>(R.id.app_bar) as Toolbar
-        setSupportActionBar(appBar)
-        val notice = findViewById<View>(R.id.notice) as TextView
-        progressView = findViewById<View>(R.id.progress_view) as ImageView
+        setSupportActionBar(findViewById<View>(R.id.app_bar) as Toolbar)
+        progressBar = findViewById<View>(R.id.passport_progress) as ProgressBar
+        resultImage = findViewById<View>(R.id.passport_result_image) as ImageView
+        resultMessage = findViewById<View>(R.id.passport_result_message) as TextView
         mNfcAdapter = NfcAdapter.getDefaultAdapter(this)
         checkNFCStatus()
-        notice.setText(R.string.nfc_enabled)
     }
 
     /**
@@ -129,38 +128,32 @@ class PassportConActivity : AppCompatActivity() {
      *
      */
     private fun handleIntent(intent: Intent) {
-        progressView!!.setImageResource(R.drawable.nfc_icon_1)
-
         // if nfc tag holds no data, return
         val tag = intent.getParcelableExtra<Tag>(NfcAdapter.EXTRA_TAG) ?: return
+        progressBar?.visibility = View.VISIBLE
 
         // Open a connection with the ID, return a PassportService object which holds the open connection
-        val pcon = PassportConnection()
+        val pCon = PassportConnection()
         val ps: PassportService?
         ps = try {
-            pcon.openConnection(tag, documentData)
+            pCon.openConnection(tag, documentData)
         } catch (e: Exception) {
             handleConnectionFailed(e)
             null
         }
         if (ps != null) {
             try {
-
+                handleConnectionSuccess()
                 // Get public key from dg15
-                val pubKey = pcon.getAAPublicKey(ps)
-                Log.d(TAG, "Public key with pem format: ${publicKeyToPemFormat(pubKey)}")
+                val pubKey = pCon.getAAPublicKey(ps)
+                val address = pubKeyToAddress(pubKey as RSAPublicKey)
+                Log.d(TAG, "Public key: $pubKey")
+                Log.d(TAG, "Address: $address")
 
                 // Get person information from dg1
-                val person = pcon.getPerson(ps)
+                // val person = pcon.getPerson(ps)
 
-                val origin = Util.hexStringToByteArray("b30d0d9fa0c8bbdf27a746ef51d83114fbce7054d8818ececb84ec129e350725")
-                val signature = signTxHash(origin, pcon)
-                Log.d(TAG, "Tx Hash signature: ${Util.byteArrayToHexString(signature)}")
-
-                val result = verifyTxHashSignature(pubKey, origin, signature)
-                Log.d(TAG, "Verify signature: $result")
-
-                Toast.makeText(this," name: " + person.firstName, Toast.LENGTH_LONG).show()
+                Toast.makeText(this, "Address: $address", Toast.LENGTH_LONG).show()
             } catch (ex: Exception) {
                 handleConnectionFailed(ex)
             } finally {
@@ -176,19 +169,25 @@ class PassportConActivity : AppCompatActivity() {
     /**
      * When the connection fails, the exception gives more information about the error
      * Display error messages to the user accordingly.
-     * @param e - The exception that was raised when the passportconnectoin failed
+     * @param e - The exception that was raised when the passport connection failed
      */
     private fun handleConnectionFailed(e: Exception) {
-        Log.d(TAG, e.toString())
+        progressBar?.visibility = View.GONE
+        resultImage?.setImageResource(R.drawable.fail)
+        resultMessage?.text = getText(R.string.authentication_fail)
         if (e.toString().toLowerCase(Locale.ROOT).contains("authentication failed")) {
-            progressView!!.setImageResource(R.drawable.nfc_icon_empty)
+            Toast.makeText(this, getString(R.string.authentication_fail), Toast.LENGTH_LONG).show()
         } else if (e.toString().toLowerCase(Locale.ROOT).contains("tag was lost")) {
             Toast.makeText(this, getString(R.string.NFC_error), Toast.LENGTH_LONG).show()
-            progressView!!.setImageResource(R.drawable.nfc_icon_empty)
         } else {
             Toast.makeText(this, getString(R.string.general_error), Toast.LENGTH_LONG).show()
-            progressView!!.setImageResource(R.drawable.nfc_icon_empty)
         }
+    }
+
+    private fun handleConnectionSuccess() {
+        progressBar?.visibility = View.GONE
+        resultImage?.setImageResource(R.drawable.success)
+        resultMessage?.text = getText(R.string.authentication_success)
     }
 
     /**
@@ -196,7 +195,7 @@ class PassportConActivity : AppCompatActivity() {
      * This method should be called each time the activity is resumed, because people could change their
      * settings while the app is open.
      */
-    fun checkNFCStatus() {
+    private fun checkNFCStatus() {
         if (mNfcAdapter == null) {
             // Stop here, we definitely need NFC
             Toast.makeText(this, R.string.nfc_not_supported_error, Toast.LENGTH_LONG).show()

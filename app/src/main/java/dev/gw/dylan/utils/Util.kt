@@ -85,15 +85,4 @@ object Util {
         return ""
     }
 
-    fun isOnline(ctx: Context): Boolean {
-        val cm = ctx.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        val netInfo = cm.activeNetworkInfo
-        return netInfo != null && netInfo.isConnectedOrConnecting
-    }
-
-    fun isNetEnabled(ctx: Context): Boolean {
-        val cm = ctx.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        val netInfo = cm.activeNetworkInfo
-        return netInfo != null
-    }
 }

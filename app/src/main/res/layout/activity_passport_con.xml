@@ -8,7 +8,7 @@
 
     <LinearLayout xmlns:app="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools"
-        tools:context="com.digitalvotingpass.digitalvotingpass.MainActivity"
+        tools:context="dev.gw.dylan.wallet.MainActivity"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
@@ -17,36 +17,54 @@
             android:id="@+id/app_bar"
             android:layout_width="match_parent"
             android:layout_height="@dimen/actionBarHeight"
-            android:background="@color/govDarkBlue"
+            android:background="@color/colorPrimary"
             android:elevation="4dp"
             android:theme="@style/AppBarOverlay"
             app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
             tools:layout_editor_absoluteY="0dp"
             tools:layout_editor_absoluteX="8dp" />
 
-        <RelativeLayout
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:orientation="vertical">
 
             <TextView
                 android:id="@+id/notice"
-                android:layout_above="@+id/progress_view"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_centerHorizontal="true"
                 android:gravity="center"
-                android:padding="40dp"
-                android:textColor="@color/govTextBlue"
-                android:textSize="17sp"
+                android:paddingHorizontal="20dp"
+                android:paddingVertical="30dp"
+                android:textColor="@android:color/black"
+                android:textSize="20sp"
                 android:text="@string/nfc_enabled"/>
 
+            <ProgressBar
+                android:id="@+id/passport_progress"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:layout_marginTop="40dp"
+                android:visibility="gone"
+                android:layout_gravity="center"/>
+
             <ImageView
-                android:id="@+id/progress_view"
+                android:id="@+id/passport_result_image"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:layout_gravity="center"
+                android:layout_marginTop="80dp"
+                android:contentDescription="@string/authentication_fail"/>
+
+            <TextView
+                android:id="@+id/passport_result_message"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:layout_centerInParent="true"
-                android:src="@drawable/nfc_icon_empty" />
-        </RelativeLayout>
+                android:layout_marginTop="25dp"
+                android:textColor="@android:color/black"
+                android:textSize="25sp"/>
+
+        </LinearLayout>
     </LinearLayout>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
