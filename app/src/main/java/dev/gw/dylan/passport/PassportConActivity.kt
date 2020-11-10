@@ -178,7 +178,7 @@ class PassportConActivity : AppCompatActivity() {
         if (e.toString().toLowerCase(Locale.ROOT).contains("authentication failed")) {
             Toast.makeText(this, getString(R.string.authentication_fail), Toast.LENGTH_LONG).show()
         } else if (e.toString().toLowerCase(Locale.ROOT).contains("tag was lost")) {
-            Toast.makeText(this, getString(R.string.NFC_error), Toast.LENGTH_LONG).show()
+            Toast.makeText(this, getString(R.string.nfc_error), Toast.LENGTH_LONG).show()
         } else {
             Toast.makeText(this, getString(R.string.general_error), Toast.LENGTH_LONG).show()
         }
