@@ -1,8 +1,8 @@
 <resources>
     <string name="app_name">CKB Passport Wallet</string>
 
-    <string name="authentication_fail">Authentication Failed</string>
-    <string name="authentication_success">Authentication Success</string>
+    <string name="connection_fail">Connection Failed</string>
+    <string name="connection_success">Connection Success</string>
 
     <!-- OCR Scanning -->
     <string name="ocr_camera_permission_explanation">Please provide camera permissions in order to scan a document.</string>

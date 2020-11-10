@@ -6,6 +6,9 @@ package dev.gw.dylan.passport
 
 import android.app.Activity
 import android.app.PendingIntent
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.nfc.NfcAdapter
@@ -72,7 +75,7 @@ class PassportConActivity : AppCompatActivity() {
     private var documentData: DocumentData? = null
     private var progressBar: ProgressBar? = null
     private var resultImage: ImageView? = null
-    private var resultMessage: TextView? = null
+    private var passportAddress: TextView? = null
     private var thisActivity: PassportConActivity? = null
 
     /**
@@ -88,7 +91,7 @@ class PassportConActivity : AppCompatActivity() {
         setSupportActionBar(findViewById<View>(R.id.app_bar) as Toolbar)
         progressBar = findViewById<View>(R.id.passport_progress) as ProgressBar
         resultImage = findViewById<View>(R.id.passport_result_image) as ImageView
-        resultMessage = findViewById<View>(R.id.passport_result_message) as TextView
+        passportAddress = findViewById<View>(R.id.passport_address) as TextView
         mNfcAdapter = NfcAdapter.getDefaultAdapter(this)
         checkNFCStatus()
     }
@@ -143,17 +146,16 @@ class PassportConActivity : AppCompatActivity() {
         }
         if (ps != null) {
             try {
-                handleConnectionSuccess()
                 // Get public key from dg15
                 val pubKey = pCon.getAAPublicKey(ps)
-                val address = pubKeyToAddress(pubKey as RSAPublicKey)
                 Log.d(TAG, "Public key: $pubKey")
-                Log.d(TAG, "Address: $address")
+                val address = pubKeyToAddress(pubKey as RSAPublicKey)
+                handleConnectionSuccess(address)
 
                 // Get person information from dg1
                 // val person = pcon.getPerson(ps)
 
-                Toast.makeText(this, "Address: $address", Toast.LENGTH_LONG).show()
+                Toast.makeText(this, getString(R.string.connection_success), Toast.LENGTH_LONG).show()
             } catch (ex: Exception) {
                 handleConnectionFailed(ex)
             } finally {
@@ -174,9 +176,9 @@ class PassportConActivity : AppCompatActivity() {
     private fun handleConnectionFailed(e: Exception) {
         progressBar?.visibility = View.GONE
         resultImage?.setImageResource(R.drawable.fail)
-        resultMessage?.text = getText(R.string.authentication_fail)
+        passportAddress?.text = getText(R.string.connection_fail)
         if (e.toString().toLowerCase(Locale.ROOT).contains("authentication failed")) {
-            Toast.makeText(this, getString(R.string.authentication_fail), Toast.LENGTH_LONG).show()
+            Toast.makeText(this, getString(R.string.connection_fail), Toast.LENGTH_LONG).show()
         } else if (e.toString().toLowerCase(Locale.ROOT).contains("tag was lost")) {
             Toast.makeText(this, getString(R.string.nfc_error), Toast.LENGTH_LONG).show()
         } else {
@@ -184,10 +186,16 @@ class PassportConActivity : AppCompatActivity() {
         }
     }
 
-    private fun handleConnectionSuccess() {
+    private fun handleConnectionSuccess(address: String) {
         progressBar?.visibility = View.GONE
         resultImage?.setImageResource(R.drawable.success)
-        resultMessage?.text = getText(R.string.authentication_success)
+        passportAddress?.text = address
+
+        passportAddress?.setOnClickListener(View.OnClickListener {
+            val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+            val clip: ClipData = ClipData.newPlainText("Copy", address)
+            clipboard.primaryClip = clip
+        })
     }
 
     /**
