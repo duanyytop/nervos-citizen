@@ -21,7 +21,7 @@
     <style name="AppBarOverlay" parent="Theme.AppCompat">
         <item name="android:textColorPrimary">@android:color/white</item>
         <item name="android:textColorSecondary">@android:color/white</item>
-        <item name="actionMenuTextColor">@color/govTextBlue</item>
+        <item name="actionMenuTextColor">@color/colorPrimary</item>
     </style>
 
 </resources>

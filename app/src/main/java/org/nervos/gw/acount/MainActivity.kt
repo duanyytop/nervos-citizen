@@ -1,15 +1,12 @@
-package dev.gw.dylan.wallet
+package org.nervos.gw.acount
 
 import android.content.Intent
 import android.os.Bundle
-import android.view.Menu
-import android.view.MenuItem
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
-import dev.gw.dylan.R
-import dev.gw.dylan.camera.CameraActivity
-import dev.gw.dylan.passport.DocumentData
-import dev.gw.dylan.passport.PassportConActivity
+import org.nervos.gw.R
+import org.nervos.gw.passport.DocumentData
+import org.nervos.gw.passport.PassportConActivity
 
 class MainActivity : AppCompatActivity() {
 
@@ -22,11 +19,6 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setSupportActionBar(findViewById(R.id.toolbar))
-
-        findViewById<Button>(R.id.start_ocr).setOnClickListener {
-            val intent = Intent(this, CameraActivity::class.java)
-            startActivityForResult(intent, GET_DOC_INFO)
-        }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

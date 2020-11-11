@@ -7,7 +7,7 @@ android {
     buildToolsVersion "30.0.0"
 
     defaultConfig {
-        applicationId "dev.gw.dylan"
+        applicationId "org.nervos.gw"
         minSdkVersion 23
         targetSdkVersion 28
         versionCode 1
@@ -50,8 +50,8 @@ dependencies {
     implementation 'com.madgag.spongycastle:core:1.54.0.0'
     implementation 'com.madgag.spongycastle:prov:1.54.0.0'
     implementation 'net.sf.scuba:scuba-sc-android:0.0.9'
-    implementation ('org.nervos.ckb:ckb:0.33.0')
-    implementation ('org.nervos.ckb:utils:0.33.0')
+    implementation 'org.nervos.ckb:ckb:0.33.0'
+    implementation 'org.nervos.ckb:utils:0.33.0'
     testImplementation 'junit:junit:4.13'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'

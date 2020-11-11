@@ -1,4 +1,4 @@
-package dev.gw.dylan.passport
+package org.nervos.gw.passport
 
 /**
  * https://github.com/digital-voting-pass/polling-station-app/blob/master/app/src/main/java/com/digitalvotingpass/passportconnection/PassportConActivity.java

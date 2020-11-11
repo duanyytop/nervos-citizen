@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".wallet.MainActivity">
+    tools:context=".acount.MainActivity">
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appBarLayout"
@@ -19,6 +19,7 @@
         android:layout_width="match_parent"
         android:layout_height="60dp"
         android:background="?attr/colorPrimary"
+        app:title="@string/app_name"
         app:layout_anchor="@+id/toolbar"
         app:layout_anchorGravity="center"
         app:titleTextColor="@color/white"/>

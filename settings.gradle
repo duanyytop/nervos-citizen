@@ -1,2 +1,2 @@
 include ':app'
-rootProject.name = "ckb-passport-wallet"
+rootProject.name = "nervos-citizen"

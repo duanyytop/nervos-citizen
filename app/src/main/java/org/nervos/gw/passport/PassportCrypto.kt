@@ -1,7 +1,7 @@
-package dev.gw.dylan.passport
+package org.nervos.gw.passport
 
-import dev.gw.dylan.utils.PASSPORT_LOCK_CODE_HASH
-import dev.gw.dylan.utils.Util
+import org.nervos.gw.utils.PASSPORT_LOCK_CODE_HASH
+import org.nervos.gw.utils.Util
 import org.bouncycastle.util.io.pem.PemObject
 import org.bouncycastle.util.io.pem.PemWriter
 import org.jmrtd.JMRTDSecurityProvider

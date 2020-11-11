@@ -1,4 +1,4 @@
-package dev.gw.dylan.passport
+package org.nervos.gw.passport
 
 /**
  * https://github.com/digital-voting-pass/polling-station-app/blob/master/app/src/main/java/com/digitalvotingpass/passportconnection/PassportConActivity.java
@@ -6,9 +6,6 @@ package dev.gw.dylan.passport
 
 import android.app.Activity
 import android.app.PendingIntent
-import android.content.ClipData
-import android.content.ClipboardManager
-import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.nfc.NfcAdapter
@@ -17,6 +14,7 @@ import android.os.Bundle
 import android.provider.Settings
 import android.util.Log
 import android.view.View
+import android.widget.Button
 import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
@@ -24,9 +22,9 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import com.google.android.material.snackbar.Snackbar
-import dev.gw.dylan.R
-import dev.gw.dylan.passport.PassportCrypto.pubKeyToAddress
-import dev.gw.dylan.wallet.MainActivity.Companion.GET_DOC_INFO
+import org.nervos.gw.R
+import org.nervos.gw.passport.PassportCrypto.pubKeyToAddress
+import org.nervos.gw.acount.MainActivity.Companion.GET_DOC_INFO
 import org.jmrtd.PassportService
 import org.spongycastle.jce.provider.BouncyCastleProvider
 import java.security.Security
@@ -190,12 +188,6 @@ class PassportConActivity : AppCompatActivity() {
         progressBar?.visibility = View.GONE
         resultImage?.setImageResource(R.drawable.success)
         passportAddress?.text = address
-
-        passportAddress?.setOnClickListener(View.OnClickListener {
-            val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-            val clip: ClipData = ClipData.newPlainText("Copy", address)
-            clipboard.primaryClip = clip
-        })
     }
 
     /**

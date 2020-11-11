@@ -1,4 +1,4 @@
-package dev.gw.dylan.utils
+package org.nervos.gw.utils
 
 /**
  * https://github.com/digital-voting-pass/polling-station-app/blob/master/app/src/main/java/com/digitalvotingpass/utilities/ErrorDialog.java
@@ -14,7 +14,6 @@ import java.io.InputStream
 import java.io.OutputStream
 
 object Util {
-    const val FOLDER_PASSPORT_WALLET = "CKBPassportWallet"
 
     /**
      * Copies an InputStream into a File.

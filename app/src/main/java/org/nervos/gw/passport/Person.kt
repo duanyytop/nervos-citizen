@@ -1,4 +1,4 @@
-package dev.gw.dylan.passport
+package org.nervos.gw.passport
 
 import android.os.Parcelable
 import kotlinx.android.parcel.Parcelize

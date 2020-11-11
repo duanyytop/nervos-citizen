@@ -1,2 +1,2 @@
-# ckb-passport-wallet
-CKB Wallet with ePassport
+# Nervos Citizen
+Nervos Citizen with ePassport
