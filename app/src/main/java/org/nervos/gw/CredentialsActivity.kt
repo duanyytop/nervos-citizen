@@ -1,14 +1,16 @@
-package org.nervos.gw.acount
+package org.nervos.gw
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
-import org.nervos.gw.R
+import androidx.appcompat.widget.Toolbar
 import org.nervos.gw.passport.DocumentData
 import org.nervos.gw.passport.PassportConActivity
 
-class MainActivity : AppCompatActivity() {
+
+class CredentialsActivity : AppCompatActivity() {
 
     companion object {
         @JvmStatic
@@ -17,8 +19,16 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-        setSupportActionBar(findViewById(R.id.toolbar))
+        setContentView(R.layout.activity_credentials)
+        val toolbar = findViewById<Toolbar>(R.id.credentials_toolbar)
+
+        setSupportActionBar(toolbar)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        supportActionBar?.setDisplayShowHomeEnabled(true)
+
+        findViewById<Button>(R.id.add_credentials).setOnClickListener(View.OnClickListener {
+            startActivity(Intent(this, AddPassportActivity::class.java))
+        })
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

@@ -14,7 +14,6 @@ import android.os.Bundle
 import android.provider.Settings
 import android.util.Log
 import android.view.View
-import android.widget.Button
 import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
@@ -24,7 +23,7 @@ import androidx.appcompat.widget.Toolbar
 import com.google.android.material.snackbar.Snackbar
 import org.nervos.gw.R
 import org.nervos.gw.passport.PassportCrypto.pubKeyToAddress
-import org.nervos.gw.acount.MainActivity.Companion.GET_DOC_INFO
+import org.nervos.gw.CredentialsActivity.Companion.GET_DOC_INFO
 import org.jmrtd.PassportService
 import org.spongycastle.jce.provider.BouncyCastleProvider
 import java.security.Security

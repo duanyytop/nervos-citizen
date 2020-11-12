@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".AddPassportActivity">
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/title_close"
+        android:layout_width="60dp"
+        android:layout_height="50dp"
+        android:padding="10dp"
+        android:src="@drawable/close"
+        android:background="@color/background"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintRight_toRightOf="parent"/>
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/read_passport_tip"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="@string/read_passport_tip"
+        android:textColor="@color/black"
+        android:textSize="16sp"
+        android:layout_marginHorizontal="20dp"
+        android:layout_marginTop="30dp"
+        app:layout_constraintBottom_toButtomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/title_close"/>
+
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/read_passport_image"
+        android:layout_width="160dp"
+        android:layout_height="160dp"
+        android:layout_marginTop="30dp"
+        android:src="@drawable/read_passport"
+        app:layout_constraintBottom_toButtomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/read_passport_tip" />
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/security_passport_image"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:layout_marginTop="32dp"
+        android:layout_marginStart="20dp"
+        android:src="@drawable/security"
+        app:layout_constraintBottom_toButtomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/read_passport_image" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/read_passport_warning"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="@string/read_passport_warning"
+        android:textColor="@color/green"
+        android:textSize="18sp"
+        android:layout_marginStart="6dp"
+        android:layout_marginEnd="20dp"
+        android:layout_marginTop="30dp"
+        app:layout_constraintBottom_toButtomOf="parent"
+        app:layout_constraintLeft_toRightOf="@id/security_passport_image"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/read_passport_image"/>
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/reading_passport"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:text="@string/reading_passport"
+        android:textColor="@color/black"
+        android:textSize="18sp"
+        android:layout_marginHorizontal="20dp"
+        android:layout_marginTop="30dp"
+        app:layout_constraintBottom_toButtomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/read_passport_warning"/>
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:layout_width="0dp"
+        android:layout_height="48dp"
+        android:text="@string/complete"
+        android:textSize="18sp"
+        android:textColor="@color/white"
+        android:textAllCaps="false"
+        android:background="@color/colorPrimary"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

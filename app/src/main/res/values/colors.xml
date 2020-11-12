@@ -4,10 +4,11 @@
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#ff4081</color>
 
-    <color name="ocr_control_background">#a0ffffff</color>
     <color name="white">#ffffff</color>
-
-    <color name="govTextBlue">#01689b</color>
-    <color name="govLightGray">#f3f3f3</color>
+    <color name="light_black">#666666</color>
+    <color name="black">#000000</color>
+    <color name="hint">#aaaaaa</color>
+    <color name="background">#f3f3f3</color>
+    <color name="green">#14e223</color>
 
 </resources>

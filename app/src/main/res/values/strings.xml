@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">CKB Passport Wallet</string>
+    <string name="app_name">Nervos Citizen</string>
 
     <string name="connection_fail">Connection Failed</string>
     <string name="connection_success">Connection Success</string>
@@ -16,4 +16,18 @@
     <!--Main Activity-->
     <string name="start_OCR">Scan ePassport</string>
     <string name="ok">OK</string>
+    <string name="menu_credentials">Credentials</string>
+    <string name="main_input_hint">Please input dApp URL</string>
+    <string name="credentials_title">Credentials</string>
+    <string name="add_credentials">+</string>
+    <string name="add_passport_tip">Citizen needs the following data to access your e-passport</string>
+    <string name="add_passport_warning">NONE OF THE DATA WILL BE UPLOADED</string>
+    <string name="read_passport_tip">Please press your passport close to your device</string>
+    <string name="read_passport_warning">Your data is secured in your device</string>
+    <string name="reading_passport">Reading…</string>
+    <string name="passport_id">Passport ID: </string>
+    <string name="passport_name">Name: </string>
+    <string name="passport_birth_date">Birth Date: </string>
+    <string name="connect_with_passport">Connect with e-Passport</string>
+    <string name="complete">Complete</string>
 </resources>

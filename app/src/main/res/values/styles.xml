@@ -6,7 +6,7 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
-        <item name="android:colorBackground">@color/govLightGray</item>
+        <item name="android:colorBackground">@color/background</item>
         <item name="android:windowTranslucentStatus">true</item>
         <item name="windowNoTitle">true</item>
         <item name="windowActionBar">false</item>
@@ -15,13 +15,30 @@
     <style name="AppTheme.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
-        <item name="android:colorBackground">@color/govLightGray</item>
+        <item name="android:colorBackground">@color/background</item>
     </style>
 
     <style name="AppBarOverlay" parent="Theme.AppCompat">
         <item name="android:textColorPrimary">@android:color/white</item>
         <item name="android:textColorSecondary">@android:color/white</item>
         <item name="actionMenuTextColor">@color/colorPrimary</item>
+    </style>
+
+    <style name="ThemeToolbar" parent="Theme.AppCompat.Light">
+        <item name="colorPrimary">@color/colorPrimaryDark</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="android:textColorPrimary">@color/white</item>
+        <item name="colorControlNormal">@color/white</item>
+        <item name="android:textColorSecondary">@color/white</item>
+    </style>
+
+    <style name="Widget.AppTheme.ActionBar.Fullscreen" parent="Widget.AppCompat.ActionBar">
+        <item name="android:background">@color/black_overlay</item>
+    </style>
+
+    <style name="Widget.AppTheme.ButtonBar.Fullscreen" parent="">
+        <item name="android:background">@color/black_overlay</item>
+        <item name="android:buttonBarStyle">?android:attr/buttonBarStyle</item>
     </style>
 
 </resources>
