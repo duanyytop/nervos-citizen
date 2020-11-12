@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".AddPassportActivity">
+    tools:context=".ReadPassportActivity">
 
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/title_close"
@@ -25,7 +25,6 @@
         android:textSize="16sp"
         android:layout_marginHorizontal="20dp"
         android:layout_marginTop="30dp"
-        app:layout_constraintBottom_toButtomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@id/title_close"/>
@@ -37,7 +36,6 @@
         android:layout_height="160dp"
         android:layout_marginTop="30dp"
         android:src="@drawable/read_passport"
-        app:layout_constraintBottom_toButtomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@id/read_passport_tip" />
@@ -49,7 +47,6 @@
         android:layout_marginTop="32dp"
         android:layout_marginStart="20dp"
         android:src="@drawable/security"
-        app:layout_constraintBottom_toButtomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toBottomOf="@id/read_passport_image" />
 
@@ -63,7 +60,6 @@
         android:layout_marginStart="6dp"
         android:layout_marginEnd="20dp"
         android:layout_marginTop="30dp"
-        app:layout_constraintBottom_toButtomOf="parent"
         app:layout_constraintLeft_toRightOf="@id/security_passport_image"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@id/read_passport_image"/>
@@ -78,7 +74,6 @@
         android:textSize="18sp"
         android:layout_marginHorizontal="20dp"
         android:layout_marginTop="30dp"
-        app:layout_constraintBottom_toButtomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@id/read_passport_warning"/>

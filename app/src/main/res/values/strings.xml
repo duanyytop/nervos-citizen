@@ -25,9 +25,9 @@
     <string name="read_passport_tip">Please press your passport close to your device</string>
     <string name="read_passport_warning">Your data is secured in your device</string>
     <string name="reading_passport">Reading…</string>
-    <string name="passport_id">Passport ID: </string>
-    <string name="passport_name">Name: </string>
-    <string name="passport_birth_date">Birth Date: </string>
+    <string name="passport_number">Passport No. </string>
+    <string name="passport_name">Expiry Date </string>
+    <string name="passport_birth_date">Birth Date </string>
     <string name="connect_with_passport">Connect with e-Passport</string>
     <string name="complete">Complete</string>
 </resources>
