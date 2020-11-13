@@ -34,7 +34,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".AddPassportActivity" />
+        <activity
+            android:name=".AddPassportActivity"
+            android:screenOrientation="portrait"/>
         <activity android:name=".SearchActivity" />
         <activity
             android:name=".CredentialsActivity"

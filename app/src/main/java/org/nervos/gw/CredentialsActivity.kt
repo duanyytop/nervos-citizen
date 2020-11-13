@@ -20,11 +20,18 @@ class CredentialsActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_credentials)
-        val toolbar = findViewById<Toolbar>(R.id.credentials_toolbar)
+        initView()
+    }
 
+    private fun initView() {
+        val toolbar = findViewById<Toolbar>(R.id.credentials_toolbar)
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.setDisplayShowHomeEnabled(true)
+        toolbar.setNavigationOnClickListener{
+            startActivity(Intent(this, MainActivity::class.java))
+            finish()
+        }
 
         findViewById<Button>(R.id.add_credentials).setOnClickListener(View.OnClickListener {
             startActivity(Intent(this, AddPassportActivity::class.java))
