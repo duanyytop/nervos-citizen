@@ -1,21 +1,12 @@
 package org.nervos.gw.passport
 
-import org.nervos.gw.utils.PASSPORT_LOCK_CODE_HASH
 import org.nervos.gw.utils.Util
 import org.bouncycastle.util.io.pem.PemObject
 import org.bouncycastle.util.io.pem.PemWriter
-import org.jmrtd.JMRTDSecurityProvider
-import org.nervos.ckb.address.Network
-import org.nervos.ckb.crypto.Hash
-import org.nervos.ckb.type.Script
-import org.nervos.ckb.utils.Numeric
-import org.nervos.ckb.utils.address.AddressGenerator
 import java.io.StringWriter
-import java.math.BigInteger
 import java.security.MessageDigest
 import java.security.PublicKey
 import java.security.Signature
-import java.security.interfaces.RSAPublicKey
 import java.util.Arrays
 import javax.crypto.Cipher
 
@@ -61,7 +52,7 @@ object PassportCrypto {
         require(!(origin == null || origin.size != 8)) { "AA failed: bad origin" }
         val aaSignature = Signature.getInstance(
             "SHA1WithRSA/ISO9796-2",
-            JMRTDSecurityProvider.getBouncyCastleProvider()
+            org.jmrtd.Util.getBouncyCastleProvider()
         )
         val aaDigest = MessageDigest.getInstance("SHA1")
         val aaCipher = Cipher.getInstance("RSA/NONE/NoPadding")
@@ -76,17 +67,4 @@ object PassportCrypto {
         return aaSignature.verify(signature)
     }
 
-
-    private fun pubKeyToBlake160(pubKey: RSAPublicKey): String {
-        val modulus = pubKey.modulus.toByteArray()
-        val publicExponent = pubKey.publicExponent.toByteArray()
-        val prefix = BigInteger.valueOf(publicExponent.size.toLong()).toByteArray()
-        return Numeric.toHexString(Hash.blake2b(prefix + modulus + publicExponent))
-    }
-
-    fun pubKeyToAddress(pubKey: RSAPublicKey): String {
-        val args = pubKeyToBlake160(pubKey)
-        val lockScript = Script(PASSPORT_LOCK_CODE_HASH, args, Script.TYPE)
-        return AddressGenerator.generateFullAddress(Network.TESTNET, lockScript)
-    }
 }

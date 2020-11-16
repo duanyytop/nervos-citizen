@@ -22,12 +22,10 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import com.google.android.material.snackbar.Snackbar
 import org.nervos.gw.R
-import org.nervos.gw.passport.PassportCrypto.pubKeyToAddress
 import org.nervos.gw.CredentialsActivity.Companion.GET_DOC_INFO
 import org.jmrtd.PassportService
 import org.spongycastle.jce.provider.BouncyCastleProvider
 import java.security.Security
-import java.security.interfaces.RSAPublicKey
 import java.util.Locale
 
 class PassportConActivity : AppCompatActivity() {
@@ -146,8 +144,6 @@ class PassportConActivity : AppCompatActivity() {
                 // Get public key from dg15
                 val pubKey = pCon.getAAPublicKey(ps)
                 Log.d(TAG, "Public key: $pubKey")
-                val address = pubKeyToAddress(pubKey as RSAPublicKey)
-                handleConnectionSuccess(address)
 
                 // Get person information from dg1
                 // val person = pcon.getPerson(ps)
@@ -183,10 +179,9 @@ class PassportConActivity : AppCompatActivity() {
         }
     }
 
-    private fun handleConnectionSuccess(address: String) {
+    private fun handleConnectionSuccess() {
         progressBar?.visibility = View.GONE
         resultImage?.setImageResource(R.drawable.success)
-        passportAddress?.text = address
     }
 
     /**

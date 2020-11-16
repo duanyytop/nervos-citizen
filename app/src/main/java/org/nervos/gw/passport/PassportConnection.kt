@@ -8,11 +8,12 @@ import android.nfc.Tag
 import android.nfc.tech.IsoDep
 import net.sf.scuba.smartcards.CardService
 import net.sf.scuba.smartcards.CardServiceException
+import org.jmrtd.BACKey
 import org.jmrtd.BACKeySpec
 import org.jmrtd.PassportService
-import org.jmrtd.lds.DG15File
-import org.jmrtd.lds.DG1File
 import org.jmrtd.lds.LDSFileUtil
+import org.jmrtd.lds.icao.DG15File
+import org.jmrtd.lds.icao.DG1File
 import java.io.InputStream
 import java.security.PublicKey
 
@@ -31,24 +32,15 @@ class PassportConnection {
         return try {
             val nfc = IsoDep.get(tag)
             val cs = CardService.getInstance(nfc)
-            ps = PassportService(cs)
+            ps = PassportService(cs, PassportService.NORMAL_MAX_TRANCEIVE_LENGTH,
+            PassportService.DEFAULT_MAX_BLOCKSIZE,
+            false,
+            false)
             ps!!.open()
 
             // Get the information needed for BAC from the data provided by OCR
             ps!!.sendSelectApplet(false)
-            val bacKey: BACKeySpec = object : BACKeySpec {
-                override fun getDocumentNumber(): String? {
-                    return docData?.documentNumber
-                }
-
-                override fun getDateOfBirth(): String? {
-                    return docData?.dateOfBirth
-                }
-
-                override fun getDateOfExpiry(): String? {
-                    return docData?.expiryDate
-                }
-            }
+            val bacKey: BACKeySpec = BACKey(docData?.documentNumber, docData?.dateOfBirth, docData?.expiryDate)
             ps!!.doBAC(bacKey)
             ps
         } catch (ex: CardServiceException) {
@@ -97,7 +89,7 @@ class PassportConnection {
             is15 = ps!!.getInputStream(PassportService.EF_DG15)
             // doAA of JMRTD library only returns signed data, and does not have the AA functionality yet
             // there is no need for sending public key information with the method.
-            ps.doAA(null, null, null, data)
+            ps.doAA(null, null, null, data).response
         } catch (ex: Exception) {
             ex.printStackTrace()
             throw ex

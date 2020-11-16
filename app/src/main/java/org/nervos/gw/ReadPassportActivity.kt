@@ -20,12 +20,12 @@ import org.jmrtd.BACKey
 import org.jmrtd.BACKeySpec
 import org.jmrtd.PassportService
 import org.jmrtd.lds.CardAccessFile
-import org.jmrtd.lds.DG1File
-import org.jmrtd.lds.DG2File
-import org.jmrtd.lds.MRZInfo
 import org.jmrtd.lds.PACEInfo
 import org.jmrtd.lds.SODFile
 import org.jmrtd.lds.SecurityInfo
+import org.jmrtd.lds.icao.DG1File
+import org.jmrtd.lds.icao.DG2File
+import org.jmrtd.lds.icao.MRZInfo
 import org.nervos.gw.utils.CSCAMasterUtil
 import org.nervos.gw.utils.LOG_PASSPORT_TAG
 import org.nervos.gw.utils.PrefUtil
@@ -37,7 +37,10 @@ import java.security.cert.CertPathValidator
 import java.security.cert.CertificateFactory
 import java.security.cert.PKIXParameters
 import java.security.cert.X509Certificate
+import java.text.ParseException
+import java.text.SimpleDateFormat
 import java.util.Arrays
+import java.util.Locale
 
 class ReadPassportActivity : AppCompatActivity() {
 
@@ -81,15 +84,15 @@ class ReadPassportActivity : AppCompatActivity() {
             val tag = intent.extras!!.getParcelable<Tag>(NfcAdapter.EXTRA_TAG)
             if (listOf(*tag!!.techList).contains("android.nfc.tech.IsoDep")) {
                 val passportNumber = prefUtil?.getPassportNumber()
-                val expirationDate = prefUtil?.getExpiryDate()
-                val birthDate = prefUtil?.getBirthDate()
+                val expirationDate = convertDate(prefUtil?.getExpiryDate())
+                val birthDate = convertDate(prefUtil?.getBirthDate())
                 if (passportNumber != null && passportNumber.isNotEmpty()
                     && expirationDate != null && expirationDate.isNotEmpty()
                     && birthDate != null && birthDate.isNotEmpty()
                 ) {
                     val bacKey: BACKeySpec = BACKey(passportNumber, birthDate, expirationDate)
                     val nfc = IsoDep.get(tag)
-                    nfc.timeout = 5 * 1000
+                    nfc.timeout = 10 * 1000
                     ReadTask(this, nfc, bacKey).execute()
                     progressBar?.visibility = View.GONE
                 } else {
@@ -100,7 +103,11 @@ class ReadPassportActivity : AppCompatActivity() {
     }
 
 
-    private class ReadTask(private val context: Context, private val isoDep: IsoDep, private val bacKey: BACKeySpec) :
+    private class ReadTask(
+        private val context: Context,
+        private val isoDep: IsoDep,
+        private val bacKey: BACKeySpec
+    ) :
         AsyncTask<Void?, Void?, Exception?>() {
         private var dg1File: DG1File? = null
         private var dg2File: DG2File? = null
@@ -114,7 +121,7 @@ class ReadPassportActivity : AppCompatActivity() {
                 val dg1Hash = digest.digest(dg1File!!.encoded)
                 val dg2Hash = digest.digest(dg2File!!.encoded)
 
-                if (Arrays.equals(dg1Hash, dataHashes[1]) && Arrays.equals(dg2Hash,dataHashes[2])) {
+                if (Arrays.equals(dg1Hash, dataHashes[1]) && Arrays.equals(dg2Hash, dataHashes[2])) {
                     val keystore = KeyStore.getInstance(KeyStore.getDefaultType())
                     keystore.load(null, null)
                     val cf = CertificateFactory.getInstance("X.509")
@@ -123,7 +130,11 @@ class ReadPassportActivity : AppCompatActivity() {
                     var i = 0
                     for ((_, certificate) in certMaps) {
                         val pemCertificate = certificate.encoded
-                        val javaCertificate = cf.generateCertificate(ByteArrayInputStream(pemCertificate))
+                        val javaCertificate = cf.generateCertificate(
+                            ByteArrayInputStream(
+                                pemCertificate
+                            )
+                        )
                         keystore.setCertificateEntry(i.toString(), javaCertificate)
                         i++
                     }
@@ -150,7 +161,13 @@ class ReadPassportActivity : AppCompatActivity() {
             try {
                 val cardService = CardService.getInstance(isoDep)
                 cardService.open()
-                val service = PassportService(cardService, PassportService.DEFAULT_MAX_BLOCKSIZE)
+                val service = PassportService(
+                    cardService,
+                    PassportService.NORMAL_MAX_TRANCEIVE_LENGTH,
+                    PassportService.DEFAULT_MAX_BLOCKSIZE,
+                    false,
+                    false
+                )
                 service.open()
                 var paceSucceeded = false
                 try {
@@ -160,8 +177,11 @@ class ReadPassportActivity : AppCompatActivity() {
                         cardAccessFile.securityInfos
                     for (securityInfo in securityInfoCollection) {
                         if (securityInfo is PACEInfo) {
-                            service.doPACE(bacKey, securityInfo.objectIdentifier, PACEInfo.toParameterSpec(
-                                securityInfo.parameterId))
+                            service.doPACE(
+                                bacKey, securityInfo.objectIdentifier, PACEInfo.toParameterSpec(
+                                    securityInfo.parameterId
+                                )
+                            )
                             paceSucceeded = true
                         }
                     }
@@ -257,6 +277,18 @@ class ReadPassportActivity : AppCompatActivity() {
                 s.append(")")
             }
             return s.toString()
+        }
+    }
+
+    private fun convertDate(input: String?): String? {
+        return if (input == null) {
+            null
+        } else try {
+            SimpleDateFormat("yyMMdd", Locale.US)
+                .format(SimpleDateFormat("yyyy-MM-dd", Locale.US).parse(input))
+        } catch (e: ParseException) {
+            Log.w(MainActivity::class.java.simpleName, e)
+            null
         }
     }
 
