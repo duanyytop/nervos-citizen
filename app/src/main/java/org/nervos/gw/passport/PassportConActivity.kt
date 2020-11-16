@@ -24,8 +24,12 @@ import com.google.android.material.snackbar.Snackbar
 import org.nervos.gw.R
 import org.nervos.gw.CredentialsActivity.Companion.GET_DOC_INFO
 import org.jmrtd.PassportService
+import org.nervos.gw.MainActivity
+import org.nervos.gw.utils.PrefUtil
 import org.spongycastle.jce.provider.BouncyCastleProvider
 import java.security.Security
+import java.text.ParseException
+import java.text.SimpleDateFormat
 import java.util.Locale
 
 class PassportConActivity : AppCompatActivity() {
@@ -80,7 +84,6 @@ class PassportConActivity : AppCompatActivity() {
      */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        documentData = intent.extras!![DocumentData.Companion.Identifier] as DocumentData?
         thisActivity = this
         setContentView(R.layout.activity_passport_con)
         setSupportActionBar(findViewById<View>(R.id.app_bar) as Toolbar)
@@ -133,6 +136,11 @@ class PassportConActivity : AppCompatActivity() {
         // Open a connection with the ID, return a PassportService object which holds the open connection
         val pCon = PassportConnection()
         val ps: PassportService?
+        val prefUtil = PrefUtil(this)
+        val passportNumber = prefUtil.getPassportNumber()
+        val expirationDate = convertDate(prefUtil.getExpiryDate())
+        val birthDate = convertDate(prefUtil.getBirthDate())
+        documentData = DocumentData(passportNumber!!, expirationDate!!, birthDate!!)
         ps = try {
             pCon.openConnection(tag, documentData)
         } catch (e: Exception) {
@@ -182,6 +190,18 @@ class PassportConActivity : AppCompatActivity() {
     private fun handleConnectionSuccess() {
         progressBar?.visibility = View.GONE
         resultImage?.setImageResource(R.drawable.success)
+    }
+
+    private fun convertDate(input: String?): String? {
+        return if (input == null) {
+            null
+        } else try {
+            SimpleDateFormat("yyMMdd", Locale.US)
+                .format(SimpleDateFormat("yyyy-MM-dd", Locale.US).parse(input))
+        } catch (e: ParseException) {
+            Log.w(MainActivity::class.java.simpleName, e)
+            null
+        }
     }
 
     /**

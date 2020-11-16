@@ -13,7 +13,7 @@ import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
 
-object Util {
+object HexUtil {
 
     /**
      * Copies an InputStream into a File.

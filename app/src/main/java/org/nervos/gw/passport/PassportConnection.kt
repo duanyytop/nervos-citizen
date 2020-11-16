@@ -11,9 +11,10 @@ import net.sf.scuba.smartcards.CardServiceException
 import org.jmrtd.BACKey
 import org.jmrtd.BACKeySpec
 import org.jmrtd.PassportService
+import org.jmrtd.PassportService.DEFAULT_MAX_BLOCKSIZE
+import org.jmrtd.lds.DG15File
+import org.jmrtd.lds.DG1File
 import org.jmrtd.lds.LDSFileUtil
-import org.jmrtd.lds.icao.DG15File
-import org.jmrtd.lds.icao.DG1File
 import java.io.InputStream
 import java.security.PublicKey
 
@@ -32,10 +33,7 @@ class PassportConnection {
         return try {
             val nfc = IsoDep.get(tag)
             val cs = CardService.getInstance(nfc)
-            ps = PassportService(cs, PassportService.NORMAL_MAX_TRANCEIVE_LENGTH,
-            PassportService.DEFAULT_MAX_BLOCKSIZE,
-            false,
-            false)
+            ps = PassportService(cs, DEFAULT_MAX_BLOCKSIZE)
             ps!!.open()
 
             // Get the information needed for BAC from the data provided by OCR
@@ -89,7 +87,7 @@ class PassportConnection {
             is15 = ps!!.getInputStream(PassportService.EF_DG15)
             // doAA of JMRTD library only returns signed data, and does not have the AA functionality yet
             // there is no need for sending public key information with the method.
-            ps.doAA(null, null, null, data).response
+            ps.doAA(null, null, null, data)
         } catch (ex: Exception) {
             ex.printStackTrace()
             throw ex

@@ -1,8 +1,9 @@
 package org.nervos.gw.passport
 
-import org.nervos.gw.utils.Util
+import org.nervos.gw.utils.HexUtil
 import org.bouncycastle.util.io.pem.PemObject
 import org.bouncycastle.util.io.pem.PemWriter
+import org.jmrtd.JMRTDSecurityProvider
 import java.io.StringWriter
 import java.security.MessageDigest
 import java.security.PublicKey
@@ -52,7 +53,7 @@ object PassportCrypto {
         require(!(origin == null || origin.size != 8)) { "AA failed: bad origin" }
         val aaSignature = Signature.getInstance(
             "SHA1WithRSA/ISO9796-2",
-            org.jmrtd.Util.getBouncyCastleProvider()
+            JMRTDSecurityProvider.getBouncyCastleProvider()
         )
         val aaDigest = MessageDigest.getInstance("SHA1")
         val aaCipher = Cipher.getInstance("RSA/NONE/NoPadding")
@@ -61,7 +62,7 @@ object PassportCrypto {
         val digestLength = aaDigest.digestLength /* should always be 20 */
         val plaintext = aaCipher.doFinal(signature)
         val m1: ByteArray = org.jmrtd.Util.recoverMessage(digestLength, plaintext)
-        println(Util.byteArrayToHexString(m1))
+        println(HexUtil.byteArrayToHexString(m1))
         aaSignature.update(m1)
         aaSignature.update(origin)
         return aaSignature.verify(signature)
