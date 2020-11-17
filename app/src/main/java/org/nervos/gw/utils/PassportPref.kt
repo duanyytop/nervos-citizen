@@ -4,8 +4,11 @@ import android.content.Context
 import android.content.SharedPreferences
 
 const val KEY_PREFERENCES = "data"
+const val KEY_PASSPORT_NUMBER = "passportNumber"
+const val KEY_EXPIRATION_DATE = "expirationDate"
+const val KEY_BIRTH_DATE = "birthDate"
 
-class PrefUtil(context: Context) {
+class PassportPref(context: Context) {
     private var preferences: SharedPreferences? = null
 
     init {
@@ -41,5 +44,6 @@ class PrefUtil(context: Context) {
     fun getBirthDate(): String? {
         return preferences?.getString(KEY_BIRTH_DATE, null)
     }
+
 }
 

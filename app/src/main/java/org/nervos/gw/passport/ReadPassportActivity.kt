@@ -12,14 +12,11 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.Group
 import org.jmrtd.BACKey
 import org.jmrtd.BACKeySpec
-import org.jmrtd.lds.MRZInfo
 import org.nervos.gw.CredentialsActivity
 import org.nervos.gw.MainActivity
 import org.nervos.gw.R
-import org.nervos.gw.db.Identity
-import org.nervos.gw.db.IdentityDatabase
-import org.nervos.gw.utils.ISO9796SHA1
-import org.nervos.gw.utils.PrefUtil
+import org.nervos.gw.utils.HistoryPref
+import org.nervos.gw.utils.PassportPref
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -27,13 +24,13 @@ import java.util.Locale
 class ReadPassportActivity : AppCompatActivity() {
 
     private var progressBar: Group? = null
-    private var prefUtil: PrefUtil? = null
+    private var passportPref: PassportPref? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_read_passport)
         progressBar = findViewById(R.id.read_passport_loading)
-        prefUtil = PrefUtil(this)
+        passportPref = PassportPref(this)
         findViewById<View>(R.id.read_passport_close).setOnClickListener{
             startActivity(Intent(this, CredentialsActivity::class.java))
             finish()
@@ -70,9 +67,9 @@ class ReadPassportActivity : AppCompatActivity() {
             progressBar?.visibility = View.VISIBLE
             val tag = intent.extras!!.getParcelable<Tag>(NfcAdapter.EXTRA_TAG)
             if (listOf(*tag!!.techList).contains("android.nfc.tech.IsoDep")) {
-                val passportNumber = prefUtil?.getPassportNumber()
-                val expirationDate = convertDate(prefUtil?.getExpiryDate())
-                val birthDate = convertDate(prefUtil?.getBirthDate())
+                val passportNumber = passportPref?.getPassportNumber()
+                val expirationDate = convertDate(passportPref?.getExpiryDate())
+                val birthDate = convertDate(passportPref?.getBirthDate())
                 if (passportNumber != null && passportNumber.isNotEmpty()
                     && expirationDate != null && expirationDate.isNotEmpty()
                     && birthDate != null && birthDate.isNotEmpty()
@@ -88,6 +85,7 @@ class ReadPassportActivity : AppCompatActivity() {
                                 }
                             }
                             startActivity(Intent(this@ReadPassportActivity, CredentialsActivity::class.java))
+                            finish()
                         }
                     }).execute()
                 } else {

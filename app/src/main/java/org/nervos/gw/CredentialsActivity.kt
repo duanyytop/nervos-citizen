@@ -109,5 +109,4 @@ class CredentialsActivity : AppCompatActivity() {
 
     }
 
-
 }

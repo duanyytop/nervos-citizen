@@ -13,7 +13,8 @@ import androidx.appcompat.app.AppCompatActivity
 import org.nervos.gw.CredentialsActivity
 import org.nervos.gw.MainActivity
 import org.nervos.gw.R
-import org.nervos.gw.utils.PrefUtil
+import org.nervos.gw.utils.HistoryPref
+import org.nervos.gw.utils.PassportPref
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -24,12 +25,12 @@ class AddPassportActivity : AppCompatActivity() {
     private var passportNumberView: EditText? = null
     private var expirationDateView: EditText? = null
     private var birthDateView: EditText? = null
-    private var prefUtil: PrefUtil? = null
+    private var passportPref: PassportPref? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_add_passport)
-        this.prefUtil = PrefUtil(this)
+        passportPref = PassportPref(this)
         initView()
     }
 
@@ -39,15 +40,15 @@ class AddPassportActivity : AppCompatActivity() {
         expirationDateView = findViewById(R.id.input_passport_expiry_date)
         birthDateView = findViewById(R.id.input_passport_birth_date)
 
-        passportNumberView?.setText(prefUtil?.getPassportNumber())
-        expirationDateView?.setText(prefUtil?.getExpiryDate())
-        birthDateView?.setText(prefUtil?.getBirthDate())
+        passportNumberView?.setText(passportPref?.getPassportNumber())
+        expirationDateView?.setText(passportPref?.getExpiryDate())
+        birthDateView?.setText(passportPref?.getBirthDate())
 
         passportNumberView?.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {}
             override fun afterTextChanged(s: Editable) {
-                prefUtil?.putPassportNumber(s.toString())
+                passportPref?.putPassportNumber(s.toString())
             }
         })
 
@@ -56,7 +57,7 @@ class AddPassportActivity : AppCompatActivity() {
             DatePickerDialog(
                 this, { _, year: Int, month: Int, dayOfMonth: Int ->
                     val value = String.format(Locale.US, "%d-%02d-%02d", year, month + 1, dayOfMonth)
-                    prefUtil?.putPassportExpiryDate(value)
+                    passportPref?.putPassportExpiryDate(value)
                     expirationDateView?.setText(value)
                 }, c!![Calendar.YEAR], c[Calendar.MONTH], c[Calendar.DAY_OF_MONTH]
             ).show()
@@ -67,7 +68,7 @@ class AddPassportActivity : AppCompatActivity() {
             DatePickerDialog(
                 this, { _, year: Int, month: Int, dayOfMonth: Int ->
                     val value = String.format(Locale.US, "%d-%02d-%02d", year, month + 1, dayOfMonth)
-                    prefUtil?.putPassportBirthDate(value)
+                    passportPref?.putPassportBirthDate(value)
                     birthDateView?.setText(value)
                 }, c!![Calendar.YEAR], c[Calendar.MONTH], c[Calendar.DAY_OF_MONTH]
             ).show()
