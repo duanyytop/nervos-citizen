@@ -30,5 +30,9 @@
     <string name="passport_birth_date">Birth Date </string>
     <string name="connect_with_passport">Connect with e-Passport</string>
     <string name="complete">Complete</string>
+    <string name="passport_read_error">Failed to read passport information, please try again</string>
     <string name="nfc_not_supported">Your device don\'t support NFC</string>
+    <string name="passport_exist">The passport information already exists</string>
+    <string name="e_passport">e-Passport</string>
+    <string name="passport_issuer">Issuer</string>
 </resources>

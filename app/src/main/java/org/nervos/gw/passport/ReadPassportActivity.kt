@@ -1,10 +1,9 @@
-package org.nervos.gw
+package org.nervos.gw.passport
 
 import android.app.PendingIntent
 import android.content.Intent
 import android.nfc.NfcAdapter
 import android.nfc.Tag
-import android.nfc.tech.IsoDep
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -13,6 +12,13 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.Group
 import org.jmrtd.BACKey
 import org.jmrtd.BACKeySpec
+import org.jmrtd.lds.MRZInfo
+import org.nervos.gw.CredentialsActivity
+import org.nervos.gw.MainActivity
+import org.nervos.gw.R
+import org.nervos.gw.db.Identity
+import org.nervos.gw.db.IdentityDatabase
+import org.nervos.gw.utils.ISO9796SHA1
 import org.nervos.gw.utils.PrefUtil
 import java.text.ParseException
 import java.text.SimpleDateFormat
@@ -72,7 +78,18 @@ class ReadPassportActivity : AppCompatActivity() {
                     && birthDate != null && birthDate.isNotEmpty()
                 ) {
                     val bacKey: BACKeySpec = BACKey(passportNumber, birthDate, expirationDate)
-                    PassportReadTask(this, tag, bacKey, progressBar!!).execute()
+                    PassportReadTask(this, tag, bacKey, object : PassportCallback {
+                        override fun handle(error: String?) {
+                            progressBar?.visibility = View.GONE
+                            if (error != null) {
+                                Toast.makeText(this@ReadPassportActivity, error, Toast.LENGTH_LONG).show()
+                                if (error == this@ReadPassportActivity.getString(R.string.passport_read_error)) {
+                                    return
+                                }
+                            }
+                            startActivity(Intent(this@ReadPassportActivity, CredentialsActivity::class.java))
+                        }
+                    }).execute()
                 } else {
                     Toast.makeText(this, R.string.nfc_not_supported, Toast.LENGTH_LONG).show()
                 }

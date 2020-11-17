@@ -1,13 +1,9 @@
-package org.nervos.gw
+package org.nervos.gw.passport
 
 import android.content.Context
 import android.nfc.Tag
 import android.nfc.tech.IsoDep
 import android.os.AsyncTask
-import android.util.Log
-import android.view.View
-import android.widget.Toast
-import androidx.constraintlayout.widget.Group
 import net.sf.scuba.smartcards.CardService
 import org.jmrtd.BACKeySpec
 import org.jmrtd.PassportService
@@ -15,20 +11,25 @@ import org.jmrtd.lds.CardAccessFile
 import org.jmrtd.lds.DG1File
 import org.jmrtd.lds.MRZInfo
 import org.jmrtd.lds.PACEInfo
+import org.nervos.gw.R
+import org.nervos.gw.db.Identity
+import org.nervos.gw.db.IdentityDatabase
+import org.nervos.gw.utils.ISO9796SHA1
 
 class PassportReadTask(
     private val context: Context,
     private val tag: Tag,
     private val bacKey: BACKeySpec,
-    private val progressBar: Group
-) : AsyncTask<Void?, Void?, Exception?>() {
+    private val callback: PassportCallback
+) : AsyncTask<Void?, Void?, String?>() {
 
     private var dg1File: DG1File? = null
     private var passiveAuthSuccess = false
     private var activeAuthSuccess: Boolean = false
+    private var publicKey: String? = null
 
     @Throws(Exception::class)
-    override fun doInBackground(vararg p0: Void?): Exception? {
+    override fun doInBackground(vararg p0: Void?): String? {
         try {
             val nfc = IsoDep.get(tag)
             val cardService = CardService.getInstance(nfc)
@@ -66,30 +67,33 @@ class PassportReadTask(
             val actions = PassportActions(service)
             passiveAuthSuccess = actions.doPassiveAuth(context)
             activeAuthSuccess = actions.doActiveAuth()
+            publicKey = actions.getAAPublicKey().toString()
+            return saveData()
         } catch (e: Exception) {
             e.printStackTrace()
-            return e
+            return context.getString(R.string.passport_read_error)
         }
-        return null
     }
 
-    override fun onPostExecute(result: Exception?) {
-        if (result == null) {
-            val mrzInfo: MRZInfo? = dg1File?.mrzInfo
-            val firstName = mrzInfo?.secondaryIdentifier?.replace("<", " ")
-            val lastName = mrzInfo?.primaryIdentifier?.replace("<", " ")
-            val gender = mrzInfo?.gender.toString()
-            val issuingState = mrzInfo?.issuingState
-            val nationality = mrzInfo?.nationality
+    override fun onPostExecute(error: String?) {
+        callback.handle(error)
+    }
 
-            val passportInfo = "$firstName, $lastName, $gender, $issuingState, $nationality, Passive: $passiveAuthSuccess, Active: $activeAuthSuccess"
-            Toast.makeText(context, passportInfo, Toast.LENGTH_LONG).show()
-            Log.d("Passport", passportInfo)
-
-            progressBar.visibility = View.GONE
-        } else {
-            result.printStackTrace()
+    private fun saveData(): String? {
+        val mrz: MRZInfo? = dg1File?.mrzInfo
+        val firstName = mrz?.secondaryIdentifier?.replace("<", "")
+        val lastName = mrz?.primaryIdentifier?.replace("<", "")
+        val name = "$firstName $lastName"
+        val identity = Identity(publicKey!!, bacKey.documentNumber, name, mrz?.gender.toString(),
+            bacKey.dateOfBirth, bacKey.dateOfExpiry, mrz?.issuingState!!,
+            mrz.nationality!!, ISO9796SHA1
+        )
+        val db = IdentityDatabase.instance(context.applicationContext).identityDao()
+        if (db.findByPublicKey(publicKey!!) == null) {
+            db.insert(identity)
+            return null
         }
+        return context.getString(R.string.passport_exist)
     }
 
 }

@@ -1,4 +1,4 @@
-package org.nervos.gw
+package org.nervos.gw.passport
 
 import android.app.DatePickerDialog
 import android.content.Intent
@@ -10,6 +10,9 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
+import org.nervos.gw.CredentialsActivity
+import org.nervos.gw.MainActivity
+import org.nervos.gw.R
 import org.nervos.gw.utils.PrefUtil
 import java.text.ParseException
 import java.text.SimpleDateFormat

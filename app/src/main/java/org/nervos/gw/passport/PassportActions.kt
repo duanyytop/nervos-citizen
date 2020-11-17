@@ -1,21 +1,16 @@
-package org.nervos.gw
+package org.nervos.gw.passport
 
 import android.content.Context
-import android.util.Log
 import org.bouncycastle.asn1.x509.Certificate
-import org.jmrtd.BACKeySpec
 import org.jmrtd.JMRTDSecurityProvider
 import org.jmrtd.PassportService
-import org.jmrtd.lds.CardAccessFile
 import org.jmrtd.lds.DG15File
 import org.jmrtd.lds.DG1File
 import org.jmrtd.lds.DG2File
-import org.jmrtd.lds.PACEInfo
 import org.jmrtd.lds.SODFile
-import org.jmrtd.lds.SecurityInfo
-import org.nervos.gw.passport.PassportConActivity
 import org.nervos.gw.utils.CSCAMasterUtil
 import org.nervos.gw.utils.HexUtil
+import org.nervos.gw.utils.ISO9796SHA1
 import java.io.ByteArrayInputStream
 import java.io.InputStream
 import java.security.KeyStore
@@ -138,10 +133,7 @@ class PassportActions(_service: PassportService) {
     @Throws(Exception::class)
     fun verifySignature(pubKey: PublicKey, origin: ByteArray?, signature: ByteArray): Boolean {
         require(!(origin == null || origin.size != 8)) { "AA failed: bad origin" }
-        val aaSignature = Signature.getInstance(
-            "SHA1WithRSA/ISO9796-2",
-            JMRTDSecurityProvider.getBouncyCastleProvider()
-        )
+        val aaSignature = Signature.getInstance(ISO9796SHA1, JMRTDSecurityProvider.getBouncyCastleProvider())
         val aaDigest = MessageDigest.getInstance("SHA1")
         val aaCipher = Cipher.getInstance("RSA/NONE/NoPadding")
         aaCipher.init(Cipher.DECRYPT_MODE, pubKey)

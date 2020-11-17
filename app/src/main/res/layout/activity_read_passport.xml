@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ReadPassportActivity">
+    tools:context=".passport.ReadPassportActivity">
 
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/read_passport_close"
