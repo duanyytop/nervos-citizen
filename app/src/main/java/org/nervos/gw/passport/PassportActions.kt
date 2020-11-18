@@ -72,8 +72,8 @@ class PassportActions(_service: PassportService) {
 
     fun doActiveAuth(): Boolean {
         val pubKey = getAAPublicKey()
-        // val random = java.util.UUID.randomUUID().toString().replace("-", "").substring(0, 16)
-        val origin = HexUtil.hexStringToByteArray("b30d0d9fa0c8bbdf")
+        val random = java.util.UUID.randomUUID().toString().replace("-", "").substring(0, 16)
+        val origin = HexUtil.hexStringToByteArray(random)
         val signature = signData(origin)
         return verifySignature(pubKey, origin, signature)
     }
@@ -140,7 +140,6 @@ class PassportActions(_service: PassportService) {
         aaSignature.initVerify(pubKey)
         val digestLength = aaDigest.digestLength /* should always be 20 */
         val plaintext = aaCipher.doFinal(signature)
-        println("decrypt: ${HexUtil.byteArrayToHexString(plaintext)}")
         val m1: ByteArray = org.jmrtd.Util.recoverMessage(digestLength, plaintext)
         aaSignature.update(m1)
         aaSignature.update(origin)

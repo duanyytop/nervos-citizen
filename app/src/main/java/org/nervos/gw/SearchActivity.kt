@@ -1,5 +1,6 @@
 package org.nervos.gw
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
@@ -11,6 +12,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
+import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.EditText
@@ -21,6 +23,7 @@ import androidx.recyclerview.widget.RecyclerView
 import org.nervos.gw.passport.AddPassportActivity
 import org.nervos.gw.utils.HistoryPref
 
+@SuppressLint("SetJavaScriptEnabled")
 class SearchActivity : AppCompatActivity() {
 
     private var histories: List<String>? = null
@@ -64,7 +67,7 @@ class SearchActivity : AppCompatActivity() {
             finish()
         }
         credentialImage?.setOnClickListener{
-            startActivity(Intent(this@SearchActivity, AddPassportActivity::class.java))
+            startActivity(Intent(this@SearchActivity, CredentialsActivity::class.java))
             finish()
         }
     }
@@ -93,6 +96,13 @@ class SearchActivity : AppCompatActivity() {
 
     private fun initWebView() {
         webView?.settings?.javaScriptEnabled = true
+        webView?.settings?.pluginState = WebSettings.PluginState.ON
+        webView?.settings?.domStorageEnabled = true
+        webView?.settings?.useWideViewPort = false
+        webView?.settings?.setSupportZoom(false)
+        webView?.settings?.allowFileAccess = true
+        webView?.settings?.loadsImagesAutomatically = true
+        webView?.settings?.builtInZoomControls = false
         webView?.webViewClient = SearchWebViewClient()
     }
 

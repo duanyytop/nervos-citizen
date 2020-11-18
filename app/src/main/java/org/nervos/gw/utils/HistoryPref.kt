@@ -20,16 +20,17 @@ class HistoryPref(context: Context) {
 
     fun putHistoryUrl(url: String) {
         if (url.isNotEmpty()) {
-            val list = getHistoryUrls().plus(url).toSet().toList().reversed()
+            val list = getHistoryUrls().toSet().toList().reversed().plus(url)
             preferences?.edit()?.putString(KEY_URL_HISTORY, gson?.toJson(list))?.apply()
         }
     }
 
     fun getHistoryUrls(): List<String> {
-        return gson?.fromJson(
+        val list = gson?.fromJson(
             preferences?.getString(KEY_URL_HISTORY, null),
             object : TypeToken<List<String>>() {}.type
         ) ?: emptyList<String>()
+        return list.reversed()
     }
 
 }
