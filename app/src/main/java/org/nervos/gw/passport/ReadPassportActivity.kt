@@ -32,7 +32,6 @@ class ReadPassportActivity : AppCompatActivity() {
         progressBar = findViewById(R.id.read_passport_loading)
         passportPref = PassportPref(this)
         findViewById<View>(R.id.read_passport_close).setOnClickListener{
-            startActivity(Intent(this, CredentialsActivity::class.java))
             finish()
         }
     }

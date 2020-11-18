@@ -2,6 +2,7 @@ package org.nervos.gw.utils
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.util.Log
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 
@@ -17,16 +18,18 @@ class HistoryPref(context: Context) {
         gson = Gson()
     }
 
-    fun putHistoryUrls(urls: List<String>) {
-        if (urls.isNotEmpty()) {
-            preferences?.edit()?.putString(KEY_URL_HISTORY, gson?.toJson(urls))?.apply()
+    fun putHistoryUrl(url: String) {
+        if (url.isNotEmpty()) {
+            val list = getHistoryUrls().plus(url).toSet().toList().reversed()
+            preferences?.edit()?.putString(KEY_URL_HISTORY, gson?.toJson(list))?.apply()
         }
     }
 
-    fun getHistoryUrls(): List<String>? {
-        return gson?.fromJson(preferences?.getString(KEY_URL_HISTORY, null),
+    fun getHistoryUrls(): List<String> {
+        return gson?.fromJson(
+            preferences?.getString(KEY_URL_HISTORY, null),
             object : TypeToken<List<String>>() {}.type
-        )
+        ) ?: emptyList<String>()
     }
 
 }

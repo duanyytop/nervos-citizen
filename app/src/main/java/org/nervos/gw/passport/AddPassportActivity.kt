@@ -80,7 +80,6 @@ class AddPassportActivity : AppCompatActivity() {
         }
 
         findViewById<ImageView>(R.id.add_passport_close).setOnClickListener{
-            startActivity(Intent(this, CredentialsActivity::class.java))
             finish()
         }
 
