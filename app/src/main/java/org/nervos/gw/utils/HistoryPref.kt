@@ -20,7 +20,7 @@ class HistoryPref(context: Context) {
 
     fun putHistoryUrl(url: String) {
         if (url.isNotEmpty()) {
-            val list = getHistoryUrls().toSet().toList().reversed().plus(url)
+            val list = getHistoryUrls().reversed().plus(url)
             preferences?.edit()?.putString(KEY_URL_HISTORY, gson?.toJson(list))?.apply()
         }
     }
@@ -30,7 +30,7 @@ class HistoryPref(context: Context) {
             preferences?.getString(KEY_URL_HISTORY, null),
             object : TypeToken<List<String>>() {}.type
         ) ?: emptyList<String>()
-        return list.reversed()
+        return list.toSet().toList().reversed()
     }
 
 }
