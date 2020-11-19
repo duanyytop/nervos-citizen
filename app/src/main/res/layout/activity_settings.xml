@@ -75,7 +75,7 @@
                 android:id="@+id/source_code_arrow"
                 android:layout_width="20dp"
                 android:layout_height="54dp"
-                android:layout_marginTop="12dp"
+                android:layout_marginTop="10dp"
                 android:src="@drawable/arrow"
                 app:layout_constraintBottom_toBottomOf="@id/source_code_title"
                 app:layout_constraintTop_toTopOf="@id/source_code_title"

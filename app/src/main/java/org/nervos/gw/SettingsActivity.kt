@@ -37,6 +37,6 @@ class SettingsActivity : AppCompatActivity() {
         } catch (e: Exception) {
             e.printStackTrace()
         }
-        return versionName
+        return "v$versionName"
     }
 }
