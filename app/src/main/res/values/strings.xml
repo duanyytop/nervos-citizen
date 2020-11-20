@@ -1,18 +1,6 @@
 <resources>
     <string name="app_name">Nervos Citizen</string>
 
-    <string name="connection_fail">Connection Failed</string>
-    <string name="connection_success">Connection Success</string>
-
-    <!--NFC Scanning-->
-    <string name="passport_connection">Connect to Passport</string>
-    <string name="nfc_not_supported_error">This device doe s not support NFC.</string>
-    <string name="nfc_disabled_error_snackbar">NFC is needed for the passport connection</string>
-    <string name="nfc_disabled_snackbar_action">Turn on NFC</string>
-    <string name="nfc_enabled">Please hold the travel document to the back of the phone.</string>
-    <string name="general_error">Could not connect, please make sure the travel document is compatible.</string>
-    <string name="nfc_error">Could not complete NFC scan, please try again.</string>
-
     <!--Main Activity-->
     <string name="start_OCR">Scan ePassport</string>
     <string name="ok">OK</string>
