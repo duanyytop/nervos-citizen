@@ -61,9 +61,10 @@ class PassportActions(_service: PassportService) {
             pkixParameters.isRevocationEnabled = false
             val cpv = CertPathValidator.getInstance(CertPathValidator.getDefaultType())
             cpv.validate(cp, pkixParameters)
+
             val sign = Signature.getInstance(sodFile.digestEncryptionAlgorithm)
             // Initializes this object for verification, using the public key from the given certificate.
-            sign.initVerify(sodFile.docSigningCertificate)
+            sign.initVerify(docSigningCertificate)
             sign.update(sodFile.eContent)
             return sign.verify(sodFile.encryptedDigest)
         }
