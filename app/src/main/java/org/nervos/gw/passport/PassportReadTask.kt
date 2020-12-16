@@ -15,6 +15,7 @@ import org.nervos.gw.R
 import org.nervos.gw.db.Identity
 import org.nervos.gw.db.IdentityDatabase
 import org.nervos.gw.utils.ISO9796SHA1
+import java.security.interfaces.RSAPublicKey
 
 class PassportReadTask(
     private val context: Context,
@@ -67,7 +68,8 @@ class PassportReadTask(
             val actions = PassportActions(service)
             passiveAuthSuccess = actions.doPassiveAuth(context)
             activeAuthSuccess = actions.doActiveAuth()
-            publicKey = actions.getAAPublicKey().toString()
+            val rsaPublicKey = actions.getAAPublicKey() as RSAPublicKey
+            publicKey = rsaPublicKey.modulus.toString(16) + "-" + rsaPublicKey.publicExponent.toString()
             return saveData()
         } catch (e: Exception) {
             e.printStackTrace()
