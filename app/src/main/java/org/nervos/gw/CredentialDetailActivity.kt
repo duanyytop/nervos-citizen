@@ -5,6 +5,8 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.widget.Button
+import android.widget.EditText
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.appcompat.widget.Toolbar
@@ -18,6 +20,7 @@ import org.nervos.gw.db.Identity
 import org.nervos.gw.indexer.IndexerApi
 import org.nervos.gw.indexer.IndexerCellsCapacity
 import org.nervos.gw.indexer.SearchKey
+import org.nervos.gw.passport.ReadPassportActivity
 import org.nervos.gw.utils.ALGORITHM_ID_ISO9796_2
 import org.nervos.gw.utils.HexUtil
 import org.nervos.gw.utils.INDEXER_URL
@@ -40,6 +43,8 @@ class CredentialDetailActivity : AppCompatActivity() {
     private var credentialCKBAddressView: TextView? = null
     private var credentialCKBBalanceView: TextView? = null
     private var credentialBalanceProgress: ProgressBar? = null
+    private var toAddressView: EditText? = null
+    private var toAmountView: EditText? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -69,6 +74,8 @@ class CredentialDetailActivity : AppCompatActivity() {
         credentialCKBAddressView = findViewById(R.id.credential_ckb_address)
         credentialCKBBalanceView = findViewById(R.id.credential_ckb_balance)
         credentialBalanceProgress = findViewById(R.id.credential_balance_progress)
+        toAddressView = findViewById(R.id.transfer_to_address)
+        toAmountView = findViewById(R.id.transfer_amount)
 
         credentialTypeView?.text = getString(R.string.credential_type_passport)
         credentialNameView?.text = identity.name
@@ -78,6 +85,10 @@ class CredentialDetailActivity : AppCompatActivity() {
         credentialCKBAddressView?.text = address
 
         fetchBalance(lock)
+
+        findViewById<Button>(R.id.action_transfer).setOnClickListener{
+            transferAction()
+        }
     }
 
     private fun fetchBalance(lock: Script) {
@@ -96,6 +107,10 @@ class CredentialDetailActivity : AppCompatActivity() {
         }
         val api = IndexerApi(INDEXER_URL)
         api.getCellsCapacity(SearchKey(lock), callback)
+    }
+
+    private fun transferAction() {
+        // TODO: transfer ckb with passport lock script
     }
 
     private fun parsePublicKey(publicKey: String): Triple<String, Script, String> {

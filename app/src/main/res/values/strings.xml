@@ -36,4 +36,7 @@
     <string name="credential_ckb_address">Credential CKB Address:</string>
     <string name="credential_balance">Credential CKB Balance:</string>
     <string name="credential_type_passport">E-Passport</string>
+    <string name="transfer_to_address">The address to transfer</string>
+    <string name="transfer_amount">The capacity to transfer</string>
+    <string name="transfer_action">Transfer</string>
 </resources>
