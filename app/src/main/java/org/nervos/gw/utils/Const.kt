@@ -8,3 +8,5 @@ const val PASSPORT_TX_INDEX = "0x0"
 
 const val ALGORITHM_ID_ISO9796_2 = 3
 const val ISO9796_2_KEY_SIZE = 1024
+
+const val INDEXER_URL = "https://testnet.ckb.dev/indexer"

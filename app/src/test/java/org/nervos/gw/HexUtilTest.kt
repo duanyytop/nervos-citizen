@@ -8,8 +8,8 @@ class HexUtilTest {
 
     @Test
     fun testU32LittleEndian() {
-        Assert.assertEquals("0x03000000", HexUtil.u32LittleEndian(3))
-        Assert.assertEquals("0x00040000", HexUtil.u32LittleEndian(1024))
-        Assert.assertEquals("0x01000100", HexUtil.u32LittleEndian(65537))
+        Assert.assertEquals("03000000", HexUtil.u32LittleEndian(3))
+        Assert.assertEquals("00040000", HexUtil.u32LittleEndian(1024))
+        Assert.assertEquals("01000100", HexUtil.u32LittleEndian(65537))
     }
 }
