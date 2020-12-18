@@ -48,8 +48,6 @@ android {
 
 dependencies {
     implementation "androidx.room:room-runtime:2.2.5"
-    implementation files('libs/ckb-0.38.1.jar')
-    implementation files('libs/utils-0.38.1.jar')
     implementation "org.bouncycastle:bcprov-jdk15on:1.65"
     implementation "com.google.guava:guava:30.0-jre"
     implementation "io.reactivex.rxjava2:rxjava:2.2.20"
@@ -68,6 +66,7 @@ dependencies {
     implementation 'org.jmrtd:jmrtd:0.5.5'
     implementation 'com.madgag.spongycastle:core:1.54.0.0'
     implementation 'com.madgag.spongycastle:prov:1.54.0.0'
+    implementation 'org.nervos.ckb:ckb:0.38.1'
     implementation 'net.sf.scuba:scuba-sc-android:0.0.9'
     implementation 'androidx.annotation:annotation:1.1.0'
     testImplementation 'junit:junit:4.13.1'

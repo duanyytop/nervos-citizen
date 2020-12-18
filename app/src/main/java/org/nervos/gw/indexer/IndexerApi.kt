@@ -11,7 +11,7 @@ class IndexerApi @JvmOverloads constructor(indexerUrl: String?, isDebug: Boolean
 
     @Throws(IOException::class)
     fun getCells(
-        searchKey: SearchKey?, order: String?, limit: BigInteger?, afterCursor: String, callback: RpcCallback<IndexerCells>
+        searchKey: SearchKey?, callback: RpcCallback<IndexerCells>, order: String = "asc", limit: BigInteger = BigInteger.valueOf(100), afterCursor: String = "0x"
     ) {
         var list = listOf(
             searchKey,
