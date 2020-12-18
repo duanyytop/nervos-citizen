@@ -121,11 +121,11 @@ class PassportActions(_service: PassportService) {
     }
 
     @Throws(Exception::class)
-    fun signTxHash(txHash: ByteArray): ByteArray {
+    fun signTxMessage(txMsg: ByteArray): ByteArray {
         val multiSignature = ByteArray(512)
         var hashPart: ByteArray?
         for (i in 0..3) {
-            hashPart = txHash.copyOfRange(i * 8, i * 8 + 8)
+            hashPart = txMsg.copyOfRange(i * 8, i * 8 + 8)
             System.arraycopy(signData(hashPart), 0, multiSignature, i * 128, 128)
         }
         return multiSignature

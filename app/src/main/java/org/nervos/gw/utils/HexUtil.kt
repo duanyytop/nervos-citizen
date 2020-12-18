@@ -4,14 +4,14 @@ package org.nervos.gw.utils
  * https://github.com/digital-voting-pass/polling-station-app/blob/master/app/src/main/java/com/digitalvotingpass/utilities/ErrorDialog.java
  */
 
-import android.content.Context
-import android.net.ConnectivityManager
 import android.util.Log
+import org.nervos.ckb.utils.Numeric
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
+import java.math.BigInteger
 
 object HexUtil {
 
@@ -83,5 +83,16 @@ object HexUtil {
         }
         return ""
     }
+
+    fun u32LittleEndian(number: Long): String? {
+        val bytes = Numeric.toBytesPadded(BigInteger.valueOf(number), 4)
+        for (i in 0 until bytes.size / 2) {
+            val temp = bytes[i]
+            bytes[i] = bytes[bytes.size - 1 - i]
+            bytes[bytes.size - 1 - i] = temp
+        }
+        return Numeric.cleanHexPrefix(Numeric.toHexString(bytes))
+    }
+
 
 }
