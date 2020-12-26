@@ -7,30 +7,29 @@ import java.math.BigInteger
 import kotlin.jvm.Throws
 
 object Collector {
-    val FEE: BigInteger = BigInteger.valueOf(1000)
+    val FEE: BigInteger = BigInteger.valueOf(2000)
     val MIN_CAPACITY: BigInteger = BigInteger.valueOf(61).multiply(BigInteger.TEN.pow(8))
 
     @Throws
     fun collectInputs(cells: IndexerCells, needCapacity: BigInteger): Pair<List<CellInput>, BigInteger> {
         var inputCapacity = BigInteger.ZERO
-        val needCapacitySum = needCapacity.add(FEE)
+        val needCapacitySum = needCapacity + FEE
         val inputs = ArrayList<CellInput>()
         for (cell in cells.objects!!) {
-            inputCapacity = inputCapacity.add(Numeric.toBigInt(cell.output?.capacity))
+            inputCapacity += Numeric.toBigInt(cell.output?.capacity)
             inputs.add(CellInput(cell.outPoint, "0x0"))
-            if (inputCapacity == needCapacitySum || inputCapacity >= needCapacitySum.add(
-                    MIN_CAPACITY)) {
+            if (inputCapacity == needCapacitySum || (inputCapacity - MIN_CAPACITY) >= needCapacitySum) {
                 break
             }
         }
-        if (inputCapacity < needCapacity.add(FEE)) {
-            throw Exception("Capacity not enough")
-        } else if (inputCapacity > needCapacitySum && inputCapacity < needCapacitySum.add(
-                MIN_CAPACITY)) {
+        if (inputCapacity < needCapacitySum) {
             throw Exception("Capacity not enough")
         }
+        if (inputCapacity > needCapacitySum && (inputCapacity - MIN_CAPACITY) < needCapacitySum) {
+            throw Exception("Change capacity not enough")
+        }
         val changeCapacity = if (inputCapacity > needCapacitySum) {
-            inputCapacity.minus(needCapacitySum)
+            inputCapacity - needCapacitySum
         } else {
             BigInteger.ZERO
         }
