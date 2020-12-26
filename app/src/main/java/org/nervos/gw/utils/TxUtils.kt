@@ -13,6 +13,8 @@ import java.util.ArrayList
 
 object TxUtils {
 
+    private const val SIGNATURE_PLACEHOLDER_LEN = 652
+
     fun generateSignMsg(tx: Transaction): String {
         val witnesses = tx.witnesses
         if (witnesses.size < 1) {
@@ -23,7 +25,7 @@ object TxUtils {
         }
         val txHash: String = tx.computeHash()
         val emptiedWitness = witnesses[0] as Witness
-        emptiedWitness.lock = Witness.SIGNATURE_PLACEHOLDER
+        emptiedWitness.lock = "00".repeat(SIGNATURE_PLACEHOLDER_LEN)
         val witnessTable = Serializer.serializeWitnessArgs(emptiedWitness)
         val blake2b = Blake2b()
         blake2b.update(Numeric.hexStringToByteArray(txHash))

@@ -177,15 +177,16 @@ class CredentialDetailActivity : AppCompatActivity() {
                 if (cells != null) {
                     val (inputs, changeCapacity) = Collector.collectInputs(cells, toAmount)
                     val toLock = AddressParser.parse(toAddress).script
-                    val outputs = listOf(CellOutput(Numeric.toHexStringWithPrefix(toAmount), toLock))
-                    val outputsData = listOf("0x")
-                    val witnesses = listOf(Witness())
+                    var outputs = listOf(CellOutput(Numeric.toHexStringWithPrefix(toAmount), toLock))
+                    var outputsData = listOf("0x")
+                    val witnesses = ArrayList<Any>()
+                    witnesses.add(Witness())
                     for (_i in 1 until inputs.size) {
-                        witnesses.plus("0x")
+                        witnesses.add("0x")
                     }
                     if (changeCapacity > BigInteger.ZERO) {
-                        outputs.plus(CellOutput(Numeric.toHexStringWithPrefix(changeCapacity), lock))
-                        outputsData.plus("0x0")
+                        outputs = outputs.plus(CellOutput(Numeric.toHexStringWithPrefix(changeCapacity), lock))
+                        outputsData = outputsData.plus("0x")
                     }
                     val cellDeps = listOf(CellDep(OutPoint(PASSPORT_TX_HASH, PASSPORT_TX_INDEX), CellDep.DEP_GROUP))
                     tx = Transaction("0x0", cellDeps, emptyList(), inputs, outputs, outputsData, witnesses)
@@ -200,7 +201,11 @@ class CredentialDetailActivity : AppCompatActivity() {
             return Triple("", Script(), "")
         }
         val index = publicKey.indexOf("-")
-        val modulus = publicKey.substring(0, index)
+        // Public N must be little endian
+        var modulus = publicKey.substring(0, index)
+        val modulusBytes = Numeric.hexStringToByteArray(modulus)
+        modulusBytes.reverse()
+        modulus = Numeric.toHexStringNoPrefix(modulusBytes)
         val publicExponent = publicKey.substring(index + 1)
         val pubKey = HexUtil.u32LittleEndian(ALGORITHM_ID_ISO9796_2.toLong()) + HexUtil.u32LittleEndian(
             ISO9796_2_KEY_SIZE.toLong()) + HexUtil.u32LittleEndian(publicExponent.toLong()) + modulus
@@ -248,6 +253,10 @@ class CredentialDetailActivity : AppCompatActivity() {
                     override fun handle(result: String?, error: String?) {
                         transferButton?.text = getString(R.string.transfer_sign_complete)
                         val (pubKey, _, _) = parsePublicKey(identity?.publicKey)
+                        if (result.isNullOrEmpty()) {
+                            Toast.makeText(this@CredentialDetailActivity, R.string.signature_failed, Toast.LENGTH_LONG).show()
+                            return
+                        }
                         val transaction = TxUtils.generateSignedTx(tx!!, result + pubKey)
                         TxUtils.transferTx(transaction, object: RpcCallback<String> {
                             override fun onFailure(errorMessage: String?) {

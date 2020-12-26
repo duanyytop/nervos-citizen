@@ -44,4 +44,5 @@
     <string name="transfer_request_sign">Press the Passport to Sign</string>
     <string name="transfer_sign_complete">Signed Completely and Broadcasting..</string>
     <string name="transfer_tx_send_successfully">Transaction Sent Successfully</string>
+    <string name="signature_failed">Transaction signature failed</string>
 </resources>
