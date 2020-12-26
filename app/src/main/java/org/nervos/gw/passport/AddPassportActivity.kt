@@ -35,7 +35,6 @@ class AddPassportActivity : AppCompatActivity() {
     }
 
     private fun initView() {
-
         passportNumberView = findViewById(R.id.input_passport_number)
         expirationDateView = findViewById(R.id.input_passport_expiry_date)
         birthDateView = findViewById(R.id.input_passport_birth_date)

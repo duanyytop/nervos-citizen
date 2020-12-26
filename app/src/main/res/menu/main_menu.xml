@@ -4,7 +4,7 @@
 
     <item
         android:id="@+id/menu_credentials"
-        android:icon="@drawable/credentials"
+        android:icon="@mipmap/credentials"
         app:showAsAction="always"
         android:title="@string/menu_credentials" />
 

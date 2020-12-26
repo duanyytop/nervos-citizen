@@ -27,4 +27,22 @@
     <string name="settings">Settings</string>
     <string name="version">Version</string>
     <string name="source_code">Open Source Repository</string>
+
+    <!--Credential Detail Activity-->
+    <string name="credential_detail_title">Credential Detail</string>
+    <string name="credential_type">Credential Type:</string>
+    <string name="credential_name">Credential Name:</string>
+    <string name="credential_issuer">Credential Issuer:</string>
+    <string name="credential_ckb_address">Credential CKB Address:</string>
+    <string name="credential_balance">Credential CKB Balance:</string>
+    <string name="credential_type_passport">E-Passport</string>
+    <string name="transfer_to_address">The address to transfer</string>
+    <string name="transfer_amount">The capacity to transfer(CKB)</string>
+    <string name="transfer_action">Transfer</string>
+    <string name="to_address_not_null">The address to transfer can\'t be null</string>
+    <string name="to_amount_not_null">The amount to transfer can\'t be null</string>
+    <string name="transfer_request_sign">Press the Passport to Sign</string>
+    <string name="transfer_sign_complete">Signed Completely and Broadcasting..</string>
+    <string name="transfer_tx_send_successfully">Transaction Sent Successfully</string>
+    <string name="signature_failed">Transaction signature failed</string>
 </resources>

@@ -61,9 +61,10 @@ class PassportActions(_service: PassportService) {
             pkixParameters.isRevocationEnabled = false
             val cpv = CertPathValidator.getInstance(CertPathValidator.getDefaultType())
             cpv.validate(cp, pkixParameters)
+
             val sign = Signature.getInstance(sodFile.digestEncryptionAlgorithm)
             // Initializes this object for verification, using the public key from the given certificate.
-            sign.initVerify(sodFile.docSigningCertificate)
+            sign.initVerify(docSigningCertificate)
             sign.update(sodFile.eContent)
             return sign.verify(sodFile.encryptedDigest)
         }
@@ -120,11 +121,11 @@ class PassportActions(_service: PassportService) {
     }
 
     @Throws(Exception::class)
-    fun signTxHash(txHash: ByteArray): ByteArray {
+    fun signTxMessage(txMsg: ByteArray): ByteArray {
         val multiSignature = ByteArray(512)
         var hashPart: ByteArray?
         for (i in 0..3) {
-            hashPart = txHash.copyOfRange(i * 8, i * 8 + 8)
+            hashPart = txMsg.copyOfRange(i * 8, i * 8 + 8)
             System.arraycopy(signData(hashPart), 0, multiSignature, i * 128, 128)
         }
         return multiSignature

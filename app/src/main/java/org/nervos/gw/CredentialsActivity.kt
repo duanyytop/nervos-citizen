@@ -1,5 +1,6 @@
 package org.nervos.gw
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -57,7 +58,7 @@ class CredentialsActivity : AppCompatActivity() {
             identities = IdentityDatabase.instance(applicationContext).identityDao().getAll()
             runOnUiThread {
                 viewManager = LinearLayoutManager(this)
-                viewAdapter = IdentityAdapter(identities!!)
+                viewAdapter = IdentityAdapter(this, identities!!)
                 recyclerView = findViewById<RecyclerView>(R.id.credentials_recycle).apply {
                     setHasFixedSize(true)
                     layoutManager = viewManager
@@ -93,7 +94,7 @@ class CredentialsActivity : AppCompatActivity() {
     }
 
 
-    class IdentityAdapter(private val identities: List<Identity>) :
+    class IdentityAdapter(private val context: Context, private val identities: List<Identity>) :
         RecyclerView.Adapter<IdentityAdapter.ViewHolder>() {
 
         class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -120,6 +121,14 @@ class CredentialsActivity : AppCompatActivity() {
             viewHolder.passportNumber?.text = identity.passportNumber
             viewHolder.passportName?.text = identity.name
             viewHolder.passportIssuer?.text = identity.country
+
+            viewHolder.itemView.setOnClickListener {
+                val intent = Intent(context, CredentialDetailActivity::class.java)
+                val bundle = Bundle()
+                bundle.putParcelable(CredentialDetailActivity.EXTRA_IDENTITY, identity)
+                intent.putExtra(CredentialDetailActivity.BUNDLE_IDENTITY, bundle)
+                context.startActivity(intent)
+            }
         }
 
         override fun getItemCount() = identities.size

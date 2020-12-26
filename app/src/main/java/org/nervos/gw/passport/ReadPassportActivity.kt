@@ -15,6 +15,7 @@ import org.jmrtd.BACKeySpec
 import org.nervos.gw.CredentialsActivity
 import org.nervos.gw.MainActivity
 import org.nervos.gw.R
+import org.nervos.gw.utils.DateUtils
 import org.nervos.gw.utils.HistoryPref
 import org.nervos.gw.utils.PassportPref
 import java.text.ParseException
@@ -67,15 +68,15 @@ class ReadPassportActivity : AppCompatActivity() {
             val tag = intent.extras!!.getParcelable<Tag>(NfcAdapter.EXTRA_TAG)
             if (listOf(*tag!!.techList).contains("android.nfc.tech.IsoDep")) {
                 val passportNumber = passportPref?.getPassportNumber()
-                val expirationDate = convertDate(passportPref?.getExpiryDate())
-                val birthDate = convertDate(passportPref?.getBirthDate())
+                val expirationDate = DateUtils.convertDate(passportPref?.getExpiryDate())
+                val birthDate = DateUtils.convertDate(passportPref?.getBirthDate())
                 if (passportNumber != null && passportNumber.isNotEmpty()
                     && expirationDate != null && expirationDate.isNotEmpty()
                     && birthDate != null && birthDate.isNotEmpty()
                 ) {
                     val bacKey: BACKeySpec = BACKey(passportNumber, birthDate, expirationDate)
                     PassportReadTask(this, tag, bacKey, object : PassportCallback {
-                        override fun handle(error: String?) {
+                        override fun handle(result: String?, error: String?) {
                             progressBar?.visibility = View.GONE
                             if (error != null) {
                                 Toast.makeText(this@ReadPassportActivity, error, Toast.LENGTH_LONG).show()
@@ -94,17 +95,7 @@ class ReadPassportActivity : AppCompatActivity() {
         }
     }
 
-    private fun convertDate(input: String?): String? {
-        return if (input == null) {
-            null
-        } else try {
-            SimpleDateFormat("yyMMdd", Locale.US)
-                .format(SimpleDateFormat("yyyy-MM-dd", Locale.US).parse(input))
-        } catch (e: ParseException) {
-            Log.w(MainActivity::class.java.simpleName, e)
-            null
-        }
-    }
+
 
 
 }

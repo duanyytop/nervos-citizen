@@ -1,12 +1,15 @@
 package org.nervos.gw.db
 
+import android.os.Parcelable
 import android.provider.BaseColumns
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import kotlinx.android.parcel.Parcelize
 
+@Parcelize
 @Entity(tableName = "identity")
-data class Identity(
+data class Identity (
     @ColumnInfo(name = "public_key") val publicKey: String = "",
     @ColumnInfo(name = "passport_number") val passportNumber: String = "",
     @ColumnInfo(name = "name") val name: String = "",
@@ -16,7 +19,7 @@ data class Identity(
     @ColumnInfo(name = "issuer") val issuer: String = "",
     @ColumnInfo(name = "country") val country: String = "",
     @ColumnInfo(name = "algorithm") val algorithm: String = ""
-) {
+): Parcelable {
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(index = true, name = BaseColumns._ID) var id: Int = 0
 }
