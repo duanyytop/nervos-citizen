@@ -137,6 +137,9 @@ class CredentialDetailActivity : AppCompatActivity() {
             override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {}
             override fun afterTextChanged(s: Editable) {
+                if (s.isEmpty()) {
+                    return
+                }
                 val ckbAmount = BigDecimal.valueOf(s.toString().toDouble())
                 toAmount = ckbAmount.multiply(BigDecimal.TEN.pow(8)).toBigInteger()
             }
@@ -172,6 +175,7 @@ class CredentialDetailActivity : AppCompatActivity() {
     }
 
     private fun transferAction(toAddress: String, toAmount: BigInteger) {
+        transferButton?.text = getString(R.string.transferring)
         val (_, lock, _) = TxUtils.parsePublicKey(identity?.publicKey)
         api.getCells(SearchKey(lock), object: RpcCallback<IndexerCells> {
             override fun onFailure(errorMessage: String?) {
@@ -179,20 +183,26 @@ class CredentialDetailActivity : AppCompatActivity() {
             }
             override fun onResponse(cells: IndexerCells?) {
                 if (cells != null) {
-                    val (inputs, changeCapacity) = Collector.collectInputs(cells, toAmount)
-                    val toLock = AddressParser.parse(toAddress).script
-                    var outputs = listOf(CellOutput(Numeric.toHexStringWithPrefix(toAmount), toLock))
-                    var outputsData = listOf("0x")
-                    if (changeCapacity > BigInteger.ZERO) {
-                        outputs = outputs.plus(CellOutput(Numeric.toHexStringWithPrefix(changeCapacity), lock))
-                        outputsData = outputsData.plus("0x")
+                    try {
+                        val (inputs, changeCapacity) = Collector.collectInputs(cells, toAmount)
+                        val toLock = AddressParser.parse(toAddress).script
+                        var outputs = listOf(CellOutput(Numeric.toHexStringWithPrefix(toAmount), toLock))
+                        var outputsData = listOf("0x")
+                        if (changeCapacity > BigInteger.ZERO) {
+                            outputs = outputs.plus(CellOutput(Numeric.toHexStringWithPrefix(changeCapacity), lock))
+                            outputsData = outputsData.plus("0x")
+                        }
+                        val cellDeps = listOf(CellDep(OutPoint(PASSPORT_TX_HASH, PASSPORT_TX_INDEX), CellDep.DEP_GROUP))
+                        tx = Transaction("0x0", cellDeps, emptyList(), inputs, outputs, outputsData)
+                        val intent = Intent(this@CredentialDetailActivity, TransferActivity::class.java)
+                        intent.putExtra(TransferActivity.EXTRA_TX, Gson().toJson(tx))
+                        intent.putExtra(TransferActivity.EXTRA_PUB_KEY, identity?.publicKey)
+                        startActivity(intent)
+                    } catch (e: Exception) {
+                        runOnUiThread {
+                            Toast.makeText(this@CredentialDetailActivity, e.message, Toast.LENGTH_LONG).show()
+                        }
                     }
-                    val cellDeps = listOf(CellDep(OutPoint(PASSPORT_TX_HASH, PASSPORT_TX_INDEX), CellDep.DEP_GROUP))
-                    tx = Transaction("0x0", cellDeps, emptyList(), inputs, outputs, outputsData)
-                    val intent = Intent(this@CredentialDetailActivity, TransferActivity::class.java)
-                    intent.putExtra(TransferActivity.EXTRA_TX, Gson().toJson(tx))
-                    intent.putExtra(TransferActivity.EXTRA_PUB_KEY, identity?.publicKey)
-                    startActivity(intent)
                 }
             }
         })

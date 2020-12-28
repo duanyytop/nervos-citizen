@@ -49,7 +49,8 @@
 
     <!--Transfer Activity-->
     <string name="transfer_title">Transfer</string>
+    <string name="transferring">Transferring..</string>
     <string name="view_on_explorer">View On Explorer</string>
-    <string name="transfer_finish">Finish</string>
+    <string name="transfer_finish">Close</string>
 
 </resources>
