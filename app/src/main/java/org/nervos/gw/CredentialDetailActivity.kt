@@ -16,6 +16,7 @@ import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.widget.Toolbar
+import com.google.gson.Gson
 import org.jmrtd.BACKey
 import org.jmrtd.BACKeySpec
 import org.nervos.ckb.address.Network
@@ -95,7 +96,10 @@ class CredentialDetailActivity : AppCompatActivity() {
 
     private fun initCredentialInfoView() {
         val bundle = intent.getBundleExtra(BUNDLE_IDENTITY)
-        identity = bundle?.getParcelable<Identity>(EXTRA_IDENTITY) as Identity
+        val identityExtra = bundle?.getParcelable<Identity>(EXTRA_IDENTITY)
+        if (identityExtra != null) {
+            identity = (identityExtra as Identity)
+        }
 
         credentialTypeView = findViewById(R.id.credential_type)
         credentialNameView = findViewById(R.id.credential_name)
@@ -108,7 +112,7 @@ class CredentialDetailActivity : AppCompatActivity() {
         credentialNameView?.text = identity?.name
         credentialIssuerView?.text = identity?.issuer
 
-        val (_, lock, address) = parsePublicKey(identity?.publicKey)
+        val (_, lock, address) = TxUtils.parsePublicKey(identity?.publicKey)
         credentialCKBAddressView?.text = address
 
         fetchBalance(lock)
@@ -168,7 +172,7 @@ class CredentialDetailActivity : AppCompatActivity() {
     }
 
     private fun transferAction(toAddress: String, toAmount: BigInteger) {
-        val (_, lock, _) = parsePublicKey(identity?.publicKey)
+        val (_, lock, _) = TxUtils.parsePublicKey(identity?.publicKey)
         api.getCells(SearchKey(lock), object: RpcCallback<IndexerCells> {
             override fun onFailure(errorMessage: String?) {
                 Log.e("Credential", errorMessage!!)
@@ -179,97 +183,19 @@ class CredentialDetailActivity : AppCompatActivity() {
                     val toLock = AddressParser.parse(toAddress).script
                     var outputs = listOf(CellOutput(Numeric.toHexStringWithPrefix(toAmount), toLock))
                     var outputsData = listOf("0x")
-                    val witnesses = ArrayList<Any>()
-                    witnesses.add(Witness())
-                    for (_i in 1 until inputs.size) {
-                        witnesses.add("0x")
-                    }
                     if (changeCapacity > BigInteger.ZERO) {
                         outputs = outputs.plus(CellOutput(Numeric.toHexStringWithPrefix(changeCapacity), lock))
                         outputsData = outputsData.plus("0x")
                     }
                     val cellDeps = listOf(CellDep(OutPoint(PASSPORT_TX_HASH, PASSPORT_TX_INDEX), CellDep.DEP_GROUP))
-                    tx = Transaction("0x0", cellDeps, emptyList(), inputs, outputs, outputsData, witnesses)
-                    transferButton?.text = getString(R.string.transfer_request_sign)
+                    tx = Transaction("0x0", cellDeps, emptyList(), inputs, outputs, outputsData)
+                    val intent = Intent(this@CredentialDetailActivity, TransferActivity::class.java)
+                    intent.putExtra(TransferActivity.EXTRA_TX, Gson().toJson(tx))
+                    intent.putExtra(TransferActivity.EXTRA_PUB_KEY, identity?.publicKey)
+                    startActivity(intent)
                 }
             }
         })
     }
 
-    private fun parsePublicKey(publicKey: String?): Triple<String, Script, String> {
-        if (publicKey == null) {
-            return Triple("", Script(), "")
-        }
-        val index = publicKey.indexOf("-")
-        // Public N must be little endian
-        var modulus = publicKey.substring(0, index)
-        val modulusBytes = Numeric.hexStringToByteArray(modulus)
-        modulusBytes.reverse()
-        modulus = Numeric.toHexStringNoPrefix(modulusBytes)
-        val publicExponent = publicKey.substring(index + 1)
-        val pubKey = HexUtil.u32LittleEndian(ALGORITHM_ID_ISO9796_2.toLong()) + HexUtil.u32LittleEndian(
-            ISO9796_2_KEY_SIZE.toLong()) + HexUtil.u32LittleEndian(publicExponent.toLong()) + modulus
-        val args = Numeric.prependHexPrefix(Hash.blake160(pubKey))
-        val lock = Script(PASSPORT_CODE_HASH, args, Script.TYPE)
-        val address = AddressGenerator.generateFullAddress(Network.TESTNET, lock)
-        return Triple(pubKey, lock, address)
-    }
-
-    override fun onResume() {
-        super.onResume()
-        val adapter = NfcAdapter.getDefaultAdapter(this)
-        if (adapter != null) {
-            val intent = Intent(applicationContext, this.javaClass)
-            intent.flags = Intent.FLAG_ACTIVITY_SINGLE_TOP
-            val pendingIntent =
-                PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
-            val filter = arrayOf(arrayOf("android.nfc.tech.IsoDep"))
-            adapter.enableForegroundDispatch(this, pendingIntent, null, filter)
-        }
-    }
-
-    override fun onPause() {
-        val adapter = NfcAdapter.getDefaultAdapter(this)
-        adapter?.disableForegroundDispatch(this)
-        super.onPause()
-    }
-
-    override fun onNewIntent(intent: Intent) {
-        super.onNewIntent(intent)
-        handleIntent(intent)
-    }
-
-    private fun handleIntent(intent: Intent) {
-        if (NfcAdapter.ACTION_TECH_DISCOVERED == intent.action) {
-            val tag = intent.extras!!.getParcelable<Tag>(NfcAdapter.EXTRA_TAG)
-            if (listOf(*tag!!.techList).contains("android.nfc.tech.IsoDep")) {
-                val passportPref = PassportPref(this)
-                val passportNumber = passportPref.getPassportNumber()
-                val expirationDate = convertDate(passportPref.getExpiryDate())
-                val birthDate = convertDate(passportPref.getBirthDate())
-                val bacKey: BACKeySpec = BACKey(passportNumber, birthDate, expirationDate)
-                val txMessage = TxUtils.generateSignMsg(tx!!)
-                PassportSignTask(tag, bacKey, txMessage, object : PassportCallback {
-                    override fun handle(result: String?, error: String?) {
-                        transferButton?.text = getString(R.string.transfer_sign_complete)
-                        val (pubKey, _, _) = parsePublicKey(identity?.publicKey)
-                        if (result.isNullOrEmpty()) {
-                            Toast.makeText(this@CredentialDetailActivity, R.string.signature_failed, Toast.LENGTH_LONG).show()
-                            return
-                        }
-                        val transaction = TxUtils.generateSignedTx(tx!!, result + pubKey)
-                        TxUtils.transferTx(transaction, object: RpcCallback<String> {
-                            override fun onFailure(errorMessage: String?) {
-                                Toast.makeText(this@CredentialDetailActivity, errorMessage, Toast.LENGTH_LONG).show()
-                            }
-                            override fun onResponse(txHash: String?) {
-                                transferButton?.text = getString(R.string.transfer_tx_send_successfully)
-                                Log.d("Transaction", txHash!!)
-                            }
-                        })
-                    }
-                }).execute()
-            }
-        }
-    }
 }
