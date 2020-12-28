@@ -38,11 +38,14 @@
             android:name=".passport.ReadPassportActivity"
             android:screenOrientation="portrait" />
         <activity android:name=".SearchActivity" />
-        <activity android:name=".CredentialDetailActivity"/>
+        <activity android:name=".CredentialDetailActivity" />
         <activity
             android:name=".CredentialsActivity"
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".TransferActivity"
+            android:label="@string/title_activity_transfer"/>
         <activity
             android:name=".SettingsActivity"
             android:label="@string/settings" />
