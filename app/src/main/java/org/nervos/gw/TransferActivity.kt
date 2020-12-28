@@ -55,12 +55,6 @@ class TransferActivity : AppCompatActivity() {
     private fun initView() {
         val toolbar = findViewById<Toolbar>(R.id.transfer_toolbar)
         setSupportActionBar(toolbar)
-        toolbar.setNavigationOnClickListener{
-            startActivity(Intent(this, CredentialDetailActivity::class.java))
-            finish()
-        }
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        supportActionBar?.setDisplayShowHomeEnabled(true)
 
         readPassportProgress = findViewById(R.id.transfer_read_progress)
         transactionHashView = findViewById(R.id.transaction_hash)
@@ -131,7 +125,6 @@ class TransferActivity : AppCompatActivity() {
                                     transactionHashView?.visibility = View.VISIBLE
                                     transactionHashView?.text = txHash
                                     viewOnExplorer?.visibility = View.VISIBLE
-                                    finishButton?.visibility = View.VISIBLE
                                     viewOnExplorer?.setOnClickListener{
                                         val uri: Uri = Uri.parse("$CKB_EXPLORER_TX_URL/$txHash")
                                         startActivity(Intent(Intent.ACTION_VIEW, uri))
