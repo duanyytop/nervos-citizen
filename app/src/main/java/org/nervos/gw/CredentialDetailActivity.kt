@@ -1,10 +1,10 @@
 package org.nervos.gw
 
-import android.app.PendingIntent
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
 import android.content.Intent
-import android.nfc.NfcAdapter
-import android.nfc.Tag
-import androidx.appcompat.app.AppCompatActivity
+import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -15,21 +15,16 @@ import android.widget.EditText
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import com.google.gson.Gson
-import org.jmrtd.BACKey
-import org.jmrtd.BACKeySpec
-import org.nervos.ckb.address.Network
-import org.nervos.ckb.crypto.Hash
 import org.nervos.ckb.service.RpcCallback
 import org.nervos.ckb.type.OutPoint
 import org.nervos.ckb.type.Script
-import org.nervos.ckb.type.Witness
 import org.nervos.ckb.type.cell.CellDep
 import org.nervos.ckb.type.cell.CellOutput
 import org.nervos.ckb.type.transaction.Transaction
 import org.nervos.ckb.utils.Numeric
-import org.nervos.ckb.utils.address.AddressGenerator
 import org.nervos.ckb.utils.address.AddressParser
 import org.nervos.gw.db.Identity
 import org.nervos.gw.indexer.Collector
@@ -37,18 +32,11 @@ import org.nervos.gw.indexer.IndexerApi
 import org.nervos.gw.indexer.IndexerCells
 import org.nervos.gw.indexer.IndexerCellsCapacity
 import org.nervos.gw.indexer.SearchKey
-import org.nervos.gw.passport.PassportCallback
-import org.nervos.gw.passport.PassportReadTask
-import org.nervos.gw.passport.PassportSignTask
-import org.nervos.gw.utils.ALGORITHM_ID_ISO9796_2
-import org.nervos.gw.utils.DateUtils.convertDate
-import org.nervos.gw.utils.HexUtil
+import org.nervos.gw.utils.CKB_EXPLORER_TX_URL
+import org.nervos.gw.utils.CKB_FAUCET_URL
 import org.nervos.gw.utils.INDEXER_URL
-import org.nervos.gw.utils.ISO9796_2_KEY_SIZE
-import org.nervos.gw.utils.PASSPORT_CODE_HASH
 import org.nervos.gw.utils.PASSPORT_TX_HASH
 import org.nervos.gw.utils.PASSPORT_TX_INDEX
-import org.nervos.gw.utils.PassportPref
 import org.nervos.gw.utils.TxUtils
 import java.math.BigDecimal
 import java.math.BigInteger
@@ -72,6 +60,7 @@ class CredentialDetailActivity : AppCompatActivity() {
     private var toAddressView: EditText? = null
     private var toAmountView: EditText? = null
     private var transferButton: Button? = null
+    private var fetchCKBButton: Button? = null
     private var identity: Identity? = null
     private var tx:Transaction? = null
 
@@ -107,6 +96,7 @@ class CredentialDetailActivity : AppCompatActivity() {
         credentialCKBAddressView = findViewById(R.id.credential_ckb_address)
         credentialCKBBalanceView = findViewById(R.id.credential_ckb_balance)
         credentialBalanceProgress = findViewById(R.id.credential_balance_progress)
+        fetchCKBButton = findViewById(R.id.action_fetch_tokens)
 
         credentialTypeView?.text = getString(R.string.credential_type_passport)
         credentialNameView?.text = identity?.name
@@ -114,6 +104,16 @@ class CredentialDetailActivity : AppCompatActivity() {
 
         val (_, lock, address) = TxUtils.parsePublicKey(identity?.publicKey)
         credentialCKBAddressView?.text = address
+
+        fetchCKBButton?.setOnClickListener {
+            val cm: ClipboardManager =
+                getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+            val mClipData: ClipData = ClipData.newPlainText("Copy", address)
+            cm.setPrimaryClip(mClipData)
+            Toast.makeText(this, R.string.address_copied, Toast.LENGTH_LONG).show()
+
+            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(CKB_FAUCET_URL)))
+        }
 
         fetchBalance(lock)
     }
@@ -177,30 +177,54 @@ class CredentialDetailActivity : AppCompatActivity() {
     private fun transferAction(toAddress: String, toAmount: BigInteger) {
         transferButton?.text = getString(R.string.transferring)
         val (_, lock, _) = TxUtils.parsePublicKey(identity?.publicKey)
-        api.getCells(SearchKey(lock), object: RpcCallback<IndexerCells> {
+        api.getCells(SearchKey(lock), object : RpcCallback<IndexerCells> {
             override fun onFailure(errorMessage: String?) {
                 Log.e("Credential", errorMessage!!)
             }
+
             override fun onResponse(cells: IndexerCells?) {
                 if (cells != null) {
                     try {
                         val (inputs, changeCapacity) = Collector.collectInputs(cells, toAmount)
                         val toLock = AddressParser.parse(toAddress).script
-                        var outputs = listOf(CellOutput(Numeric.toHexStringWithPrefix(toAmount), toLock))
+                        var outputs = listOf(
+                            CellOutput(
+                                Numeric.toHexStringWithPrefix(toAmount),
+                                toLock
+                            )
+                        )
                         var outputsData = listOf("0x")
                         if (changeCapacity > BigInteger.ZERO) {
-                            outputs = outputs.plus(CellOutput(Numeric.toHexStringWithPrefix(changeCapacity), lock))
+                            outputs = outputs.plus(
+                                CellOutput(
+                                    Numeric.toHexStringWithPrefix(
+                                        changeCapacity
+                                    ), lock
+                                )
+                            )
                             outputsData = outputsData.plus("0x")
                         }
-                        val cellDeps = listOf(CellDep(OutPoint(PASSPORT_TX_HASH, PASSPORT_TX_INDEX), CellDep.DEP_GROUP))
+                        val cellDeps = listOf(
+                            CellDep(
+                                OutPoint(PASSPORT_TX_HASH, PASSPORT_TX_INDEX),
+                                CellDep.DEP_GROUP
+                            )
+                        )
                         tx = Transaction("0x0", cellDeps, emptyList(), inputs, outputs, outputsData)
-                        val intent = Intent(this@CredentialDetailActivity, TransferActivity::class.java)
+                        val intent = Intent(
+                            this@CredentialDetailActivity,
+                            TransferActivity::class.java
+                        )
                         intent.putExtra(TransferActivity.EXTRA_TX, Gson().toJson(tx))
                         intent.putExtra(TransferActivity.EXTRA_PUB_KEY, identity?.publicKey)
                         startActivity(intent)
                     } catch (e: Exception) {
                         runOnUiThread {
-                            Toast.makeText(this@CredentialDetailActivity, e.message, Toast.LENGTH_LONG).show()
+                            Toast.makeText(
+                                this@CredentialDetailActivity,
+                                e.message,
+                                Toast.LENGTH_LONG
+                            ).show()
                         }
                     }
                 }
