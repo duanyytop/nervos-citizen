@@ -126,7 +126,7 @@ class TransferActivity : AppCompatActivity() {
                                     transactionHashView?.text = txHash
                                     viewOnExplorer?.visibility = View.VISIBLE
                                     viewOnExplorer?.setOnClickListener{
-                                        val uri: Uri = Uri.parse("$CKB_EXPLORER_TX_URL/$txHash")
+                                        val uri: Uri = Uri.parse("$CKB_EXPLORER_TX_URL$txHash")
                                         startActivity(Intent(Intent.ACTION_VIEW, uri))
                                     }
                                 }
