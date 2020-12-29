@@ -13,3 +13,4 @@ const val NODE_URL = "https://testnet.ckb.dev/rpc"
 const val INDEXER_URL = "https://testnet.ckb.dev/indexer"
 
 const val CKB_EXPLORER_TX_URL = "https://explorer.nervos.org/aggron/transaction/"
+const val CKB_FAUCET_URL = "https://faucet.nervos.org/"
