@@ -89,8 +89,10 @@ class ReadPassportActivity : AppCompatActivity() {
                         }
                     }).execute()
                 } else {
-                    Toast.makeText(this, R.string.nfc_not_supported, Toast.LENGTH_LONG).show()
+                    Toast.makeText(this, R.string.passport_info_error, Toast.LENGTH_LONG).show()
                 }
+            } else {
+                Toast.makeText(this, R.string.nfc_not_supported, Toast.LENGTH_LONG).show()
             }
         }
     }

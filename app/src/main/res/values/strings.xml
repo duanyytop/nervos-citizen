@@ -19,6 +19,7 @@
     <string name="connect_with_passport">Connect with e-Passport</string>
     <string name="complete">Complete</string>
     <string name="passport_read_error">Failed to read passport information, please try again</string>
+    <string name="passport_info_error">Passport information is incorrect</string>
     <string name="nfc_not_supported">Your device don\'t support NFC</string>
     <string name="passport_exist">The passport information already exists</string>
     <string name="e_passport">e-Passport</string>
@@ -27,6 +28,7 @@
     <string name="settings">Settings</string>
     <string name="version">Version</string>
     <string name="source_code">Open Source Repository</string>
+    <string name="permission_tip">Require RFC permission</string>
 
     <!--Credential Detail Activity-->
     <string name="credential_detail_title">Credential Detail</string>
