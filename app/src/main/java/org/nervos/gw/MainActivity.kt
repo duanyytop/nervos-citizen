@@ -1,5 +1,6 @@
 package org.nervos.gw
 
+import android.Manifest.permission.NFC
 import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
@@ -7,8 +8,15 @@ import android.view.MenuItem
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import com.vmadalin.easypermissions.EasyPermissions
+import com.vmadalin.easypermissions.annotations.AfterPermissionGranted
 
 class MainActivity : AppCompatActivity() {
+
+    companion object {
+        const val PERMISSION_REQUEST_CODE = 0;
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -19,6 +27,7 @@ class MainActivity : AppCompatActivity() {
             startActivity(Intent(this, SearchActivity::class.java))
         }
 
+        requestAppPermissions()
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -33,6 +42,18 @@ class MainActivity : AppCompatActivity() {
                 true
             }
             else -> super.onOptionsItemSelected(item)
+        }
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this)
+    }
+
+    @AfterPermissionGranted(PERMISSION_REQUEST_CODE)
+    fun requestAppPermissions() {
+        if (!EasyPermissions.hasPermissions(this, NFC)) {
+            EasyPermissions.requestPermissions(this, getString(R.string.permission_tip), PERMISSION_REQUEST_CODE, NFC)
         }
     }
 
