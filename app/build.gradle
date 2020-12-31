@@ -12,7 +12,7 @@ android {
         minSdkVersion 23
         targetSdkVersion 30
         versionCode 1
-        versionName "0.2.0"
+        versionName "0.2.1"
         multiDexEnabled = true
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -72,6 +72,7 @@ dependencies {
     implementation 'org.nervos.ckb:ckb:0.38.1'
     implementation 'net.sf.scuba:scuba-sc-android:0.0.9'
     implementation 'androidx.annotation:annotation:1.1.0'
+    implementation 'com.vmadalin:easypermissions-ktx:0.1.0'
     testImplementation 'junit:junit:4.13.1'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
