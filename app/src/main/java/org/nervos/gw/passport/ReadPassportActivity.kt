@@ -5,7 +5,6 @@ import android.content.Intent
 import android.nfc.NfcAdapter
 import android.nfc.Tag
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -13,14 +12,9 @@ import androidx.constraintlayout.widget.Group
 import org.jmrtd.BACKey
 import org.jmrtd.BACKeySpec
 import org.nervos.gw.CredentialsActivity
-import org.nervos.gw.MainActivity
 import org.nervos.gw.R
 import org.nervos.gw.utils.DateUtils
-import org.nervos.gw.utils.HistoryPref
 import org.nervos.gw.utils.PassportPref
-import java.text.ParseException
-import java.text.SimpleDateFormat
-import java.util.Locale
 
 class ReadPassportActivity : AppCompatActivity() {
 
@@ -80,9 +74,7 @@ class ReadPassportActivity : AppCompatActivity() {
                             progressBar?.visibility = View.GONE
                             if (error != null) {
                                 Toast.makeText(this@ReadPassportActivity, error, Toast.LENGTH_LONG).show()
-                                if (error == this@ReadPassportActivity.getString(R.string.passport_read_error)) {
-                                    return
-                                }
+                                return
                             }
                             startActivity(Intent(this@ReadPassportActivity, CredentialsActivity::class.java))
                             finish()

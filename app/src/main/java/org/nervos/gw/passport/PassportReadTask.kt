@@ -53,7 +53,7 @@ class PassportReadTask(
                         paceSucceeded = true
                     }
                 }
-            } catch (e: java.lang.Exception) {
+            } catch (e: Exception) {
                 e.printStackTrace()
             }
             service.sendSelectApplet(paceSucceeded)
@@ -73,7 +73,7 @@ class PassportReadTask(
             return saveData()
         } catch (e: Exception) {
             e.printStackTrace()
-            return context.getString(R.string.passport_read_error)
+            return e.message
         }
     }
 
@@ -86,7 +86,8 @@ class PassportReadTask(
         val firstName = mrz?.secondaryIdentifier?.replace("<", "")
         val lastName = mrz?.primaryIdentifier?.replace("<", "")
         val name = "$firstName $lastName"
-        val identity = Identity(publicKey!!, bacKey.documentNumber, name, mrz?.gender.toString(),
+        val identity = Identity(
+            publicKey!!, bacKey.documentNumber, name, mrz?.gender.toString(),
             bacKey.dateOfBirth, bacKey.dateOfExpiry, mrz?.issuingState!!,
             mrz.nationality!!, ISO9796SHA1
         )
