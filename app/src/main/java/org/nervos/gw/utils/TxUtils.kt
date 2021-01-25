@@ -84,8 +84,10 @@ object TxUtils {
         modulusBytes.reverse()
         modulus = Numeric.toHexStringNoPrefix(modulusBytes)
         val publicExponent = publicKey.substring(index + 1)
-        val pubKey = HexUtil.u32LittleEndian(ALGORITHM_ID_ISO9796_2.toLong()) + HexUtil.u32LittleEndian(
-            ISO9796_2_KEY_SIZE.toLong()) + HexUtil.u32LittleEndian(publicExponent.toLong()) + modulus
+        val commonHeader = listOf(ISO9796_2_ALGORITHM_ID.toByte(), ISO9796_2_KEY_SIZE.toByte(),
+            ISO9796_2_PADDING.toByte(), ISO9796_2_MD_SHA1.toByte()).toByteArray()
+        val pubKey = HexUtil.byteArrayToHexString(commonHeader) +
+            HexUtil.u32LittleEndian(publicExponent.toLong()) + modulus
         val args = Numeric.prependHexPrefix(Hash.blake160(pubKey))
         val lock = Script(PASSPORT_CODE_HASH, args, Script.TYPE)
         val address = AddressGenerator.generateFullAddress(Network.TESTNET, lock)

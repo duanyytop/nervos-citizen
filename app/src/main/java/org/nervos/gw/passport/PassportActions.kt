@@ -1,13 +1,16 @@
 package org.nervos.gw.passport
 
 import android.content.Context
+import com.google.gson.Gson
 import org.bouncycastle.asn1.x509.Certificate
+import org.bouncycastle.asn1.x509.TBSCertificate
 import org.jmrtd.JMRTDSecurityProvider
 import org.jmrtd.PassportService
 import org.jmrtd.lds.DG15File
 import org.jmrtd.lds.DG1File
 import org.jmrtd.lds.DG2File
 import org.jmrtd.lds.SODFile
+import org.nervos.ckb.utils.Numeric
 import org.nervos.gw.utils.CSCAMasterUtil
 import org.nervos.gw.utils.HexUtil
 import org.nervos.gw.utils.ISO9796SHA1
@@ -61,6 +64,11 @@ class PassportActions(_service: PassportService) {
             pkixParameters.isRevocationEnabled = false
             val cpv = CertPathValidator.getInstance(CertPathValidator.getDefaultType())
             cpv.validate(cp, pkixParameters)
+
+            val digest = MessageDigest.getInstance("SHA-256")
+            digest.update(docSigningCertificate!!.tbsCertificate)
+            val hash = digest.digest()
+            println("TBSCertificate Hash: ${Numeric.toHexString(hash)}")
 
             val sign = Signature.getInstance(sodFile.digestEncryptionAlgorithm)
             // Initializes this object for verification, using the public key from the given certificate.
@@ -134,7 +142,10 @@ class PassportActions(_service: PassportService) {
     @Throws(Exception::class)
     fun verifySignature(pubKey: PublicKey, origin: ByteArray?, signature: ByteArray): Boolean {
         require(!(origin == null || origin.size != 8)) { "AA failed: bad origin" }
-        val aaSignature = Signature.getInstance(ISO9796SHA1, JMRTDSecurityProvider.getBouncyCastleProvider())
+        val aaSignature = Signature.getInstance(
+            ISO9796SHA1,
+            JMRTDSecurityProvider.getBouncyCastleProvider()
+        )
         val aaDigest = MessageDigest.getInstance("SHA1")
         val aaCipher = Cipher.getInstance("RSA/NONE/NoPadding")
         aaCipher.init(Cipher.DECRYPT_MODE, pubKey)
