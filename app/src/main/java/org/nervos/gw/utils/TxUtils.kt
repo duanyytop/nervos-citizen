@@ -17,8 +17,6 @@ import java.util.ArrayList
 
 object TxUtils {
 
-    private const val SIGNATURE_PLACEHOLDER_LEN = 652
-
     fun generateSignMsg(tx: Transaction): String {
         val witnesses = tx.witnesses
         if (witnesses.size < 1) {
