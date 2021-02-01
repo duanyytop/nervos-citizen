@@ -1,15 +1,13 @@
 package org.nervos.gw.passport
 
 import android.content.Context
-import com.google.gson.Gson
 import org.bouncycastle.asn1.x509.Certificate
-import org.bouncycastle.asn1.x509.TBSCertificate
-import org.jmrtd.JMRTDSecurityProvider
 import org.jmrtd.PassportService
-import org.jmrtd.lds.DG15File
-import org.jmrtd.lds.DG1File
-import org.jmrtd.lds.DG2File
+import org.jmrtd.Util
 import org.jmrtd.lds.SODFile
+import org.jmrtd.lds.icao.DG15File
+import org.jmrtd.lds.icao.DG1File
+import org.jmrtd.lds.icao.DG2File
 import org.nervos.ckb.utils.Numeric
 import org.nervos.gw.utils.CSCAMasterUtil
 import org.nervos.gw.utils.HexUtil
@@ -32,9 +30,9 @@ class PassportActions(_service: PassportService) {
 
     @Throws(Exception::class)
     fun doPassiveAuth(context: Context): Boolean {
-        val dg1File = DG1File(service.getInputStream(PassportService.EF_DG1))
-        val dg2File = DG2File(service.getInputStream(PassportService.EF_DG2))
-        val sodFile = SODFile(service.getInputStream(PassportService.EF_SOD))
+        val dg1File = DG1File(service.getInputStream(PassportService.EF_DG1, PassportService.DEFAULT_MAX_BLOCKSIZE))
+        val dg2File = DG2File(service.getInputStream(PassportService.EF_DG2, PassportService.DEFAULT_MAX_BLOCKSIZE))
+        val sodFile = SODFile(service.getInputStream(PassportService.EF_SOD, PassportService.DEFAULT_MAX_BLOCKSIZE))
         val digest = MessageDigest.getInstance(sodFile.digestAlgorithm)
         val dataHashes = sodFile.dataGroupHashes
         val dg1Hash = digest.digest(dg1File.encoded)
@@ -118,10 +116,8 @@ class PassportActions(_service: PassportService) {
     fun signData(data: ByteArray?): ByteArray {
         var is15: InputStream? = null
         return try {
-            is15 = service.getInputStream(PassportService.EF_DG15)
-            // doAA of JMRTD library only returns signed data, and does not have the AA functionality yet
-            // there is no need for sending public key information with the method.
-            service.doAA(null, null, null, data)
+            is15 = service.getInputStream(PassportService.EF_DG15, PassportService.DEFAULT_MAX_BLOCKSIZE)
+            service.doAA(null, null, null, data).response
         } catch (ex: Exception) {
             ex.printStackTrace()
             throw ex
@@ -146,7 +142,7 @@ class PassportActions(_service: PassportService) {
         require(!(origin == null || origin.size != 8)) { "AA failed: bad origin" }
         val aaSignature = Signature.getInstance(
             ISO9796SHA1,
-            JMRTDSecurityProvider.getBouncyCastleProvider()
+            Util.getBouncyCastleProvider()
         )
         val aaDigest = MessageDigest.getInstance("SHA1")
         val aaCipher = Cipher.getInstance("RSA/NONE/NoPadding")

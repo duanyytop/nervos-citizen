@@ -8,9 +8,9 @@ import net.sf.scuba.smartcards.CardService
 import org.jmrtd.BACKeySpec
 import org.jmrtd.PassportService
 import org.jmrtd.lds.CardAccessFile
-import org.jmrtd.lds.DG1File
-import org.jmrtd.lds.MRZInfo
 import org.jmrtd.lds.PACEInfo
+import org.jmrtd.lds.icao.DG1File
+import org.jmrtd.lds.icao.MRZInfo
 import org.nervos.gw.R
 import org.nervos.gw.db.Identity
 import org.nervos.gw.db.IdentityDatabase
@@ -36,12 +36,12 @@ class PassportReadTask(
             val cardService = CardService.getInstance(nfc)
             cardService.open()
 
-            val service = PassportService(cardService, PassportService.DEFAULT_MAX_BLOCKSIZE)
+            val service = PassportService(cardService, PassportService.NORMAL_MAX_TRANCEIVE_LENGTH, PassportService.DEFAULT_MAX_BLOCKSIZE, false, true)
             service.open()
             var paceSucceeded = false
             try {
                 val cardAccessFile =
-                    CardAccessFile(service.getInputStream(PassportService.EF_CARD_ACCESS))
+                    CardAccessFile(service.getInputStream(PassportService.EF_CARD_ACCESS, PassportService.DEFAULT_MAX_BLOCKSIZE))
                 val securityInfoCollection = cardAccessFile.securityInfos
                 for (securityInfo in securityInfoCollection) {
                     if (securityInfo is PACEInfo) {
