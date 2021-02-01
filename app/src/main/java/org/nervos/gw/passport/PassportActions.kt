@@ -30,6 +30,7 @@ import javax.crypto.Cipher
 class PassportActions(_service: PassportService) {
     private val service = _service
 
+    @Throws(Exception::class)
     fun doPassiveAuth(context: Context): Boolean {
         val dg1File = DG1File(service.getInputStream(PassportService.EF_DG1))
         val dg2File = DG2File(service.getInputStream(PassportService.EF_DG2))
@@ -79,6 +80,7 @@ class PassportActions(_service: PassportService) {
         return false
     }
 
+    @Throws(Exception::class)
     fun doActiveAuth(): Boolean {
         val pubKey = getAAPublicKey()
         val random = java.util.UUID.randomUUID().toString().replace("-", "").substring(0, 16)
