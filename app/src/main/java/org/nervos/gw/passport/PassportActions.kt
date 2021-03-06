@@ -1,6 +1,7 @@
 package org.nervos.gw.passport
 
 import android.content.Context
+import com.google.gson.Gson
 import org.bouncycastle.asn1.x509.Certificate
 import org.jmrtd.PassportService
 import org.jmrtd.Util
@@ -65,13 +66,14 @@ class PassportActions(_service: PassportService) {
             cpv.validate(cp, pkixParameters)
 
             val digest = MessageDigest.getInstance("SHA-256")
-            digest.update(docSigningCertificate!!.tbsCertificate)
+            digest.update(Numeric.hexStringToByteArray("3081d8020100300d060960864801650304020105003081c3302502010104206f896cb0dfe6f6f4f9290558bca0afbfea9931882e858e7317c06381c84c033a302502010204200972b2ce1d907d4abee62f06b6179f3faa0c73f0ca7fb32a9126b267c4f7b2a3302502010b042038fd52ff11243dd6591bf68d4b66dba079e20ef8fffc1bbf03fabb771acea5c3302502010c0420ae4bba015b391df89ee3365c8c184ffcf9bb7e825a30077b73877278974e7a28302502010f042090c412da870438568046bf2b92794d0828d1543acb9590ebf9fd1eb977983f86"))
             val hash = digest.digest()
-            println("TBSCertificate Hash: ${Numeric.toHexString(hash)}")
+            println("ContentInfo Hash: ${Numeric.toHexString(hash)}")
 
             val sign = Signature.getInstance(sodFile.digestEncryptionAlgorithm)
             // Initializes this object for verification, using the public key from the given certificate.
             sign.initVerify(docSigningCertificate)
+            println("eContent: ${Numeric.toHexString(sodFile.eContent)}")
             sign.update(sodFile.eContent)
             return sign.verify(sodFile.encryptedDigest)
         }
