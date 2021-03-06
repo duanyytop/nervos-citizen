@@ -49,6 +49,7 @@ class PassportReadTask(
                             bacKey,
                             securityInfo.objectIdentifier,
                             PACEInfo.toParameterSpec(securityInfo.parameterId),
+                            null
                         )
                         paceSucceeded = true
                     }
@@ -59,12 +60,12 @@ class PassportReadTask(
             service.sendSelectApplet(paceSucceeded)
             if (!paceSucceeded) {
                 try {
-                    service.getInputStream(PassportService.EF_COM).read()
+                    service.getInputStream(PassportService.EF_COM, PassportService.DEFAULT_MAX_BLOCKSIZE).read()
                 } catch (e: java.lang.Exception) {
                     service.doBAC(bacKey)
                 }
             }
-            dg1File = DG1File(service.getInputStream(PassportService.EF_DG1))
+            dg1File = DG1File(service.getInputStream(PassportService.EF_DG1, PassportService.DEFAULT_MAX_BLOCKSIZE))
             val actions = PassportActions(service)
             passiveAuthSuccess = actions.doPassiveAuth(context)
             activeAuthSuccess = actions.doActiveAuth()
