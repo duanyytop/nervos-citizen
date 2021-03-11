@@ -8,9 +8,9 @@ import net.sf.scuba.smartcards.CardService
 import org.jmrtd.BACKeySpec
 import org.jmrtd.PassportService
 import org.jmrtd.lds.CardAccessFile
-import org.jmrtd.lds.DG1File
-import org.jmrtd.lds.MRZInfo
 import org.jmrtd.lds.PACEInfo
+import org.jmrtd.lds.icao.DG1File
+import org.jmrtd.lds.icao.MRZInfo
 import org.nervos.gw.R
 import org.nervos.gw.db.Identity
 import org.nervos.gw.db.IdentityDatabase
@@ -36,12 +36,12 @@ class PassportReadTask(
             val cardService = CardService.getInstance(nfc)
             cardService.open()
 
-            val service = PassportService(cardService, PassportService.DEFAULT_MAX_BLOCKSIZE)
+            val service = PassportService(cardService, PassportService.NORMAL_MAX_TRANCEIVE_LENGTH, PassportService.DEFAULT_MAX_BLOCKSIZE, false, true)
             service.open()
             var paceSucceeded = false
             try {
                 val cardAccessFile =
-                    CardAccessFile(service.getInputStream(PassportService.EF_CARD_ACCESS))
+                    CardAccessFile(service.getInputStream(PassportService.EF_CARD_ACCESS, PassportService.DEFAULT_MAX_BLOCKSIZE))
                 val securityInfoCollection = cardAccessFile.securityInfos
                 for (securityInfo in securityInfoCollection) {
                     if (securityInfo is PACEInfo) {
@@ -49,22 +49,23 @@ class PassportReadTask(
                             bacKey,
                             securityInfo.objectIdentifier,
                             PACEInfo.toParameterSpec(securityInfo.parameterId),
+                            null
                         )
                         paceSucceeded = true
                     }
                 }
-            } catch (e: java.lang.Exception) {
+            } catch (e: Exception) {
                 e.printStackTrace()
             }
             service.sendSelectApplet(paceSucceeded)
             if (!paceSucceeded) {
                 try {
-                    service.getInputStream(PassportService.EF_COM).read()
+                    service.getInputStream(PassportService.EF_COM, PassportService.DEFAULT_MAX_BLOCKSIZE).read()
                 } catch (e: java.lang.Exception) {
                     service.doBAC(bacKey)
                 }
             }
-            dg1File = DG1File(service.getInputStream(PassportService.EF_DG1))
+            dg1File = DG1File(service.getInputStream(PassportService.EF_DG1, PassportService.DEFAULT_MAX_BLOCKSIZE))
             val actions = PassportActions(service)
             passiveAuthSuccess = actions.doPassiveAuth(context)
             activeAuthSuccess = actions.doActiveAuth()
@@ -73,7 +74,7 @@ class PassportReadTask(
             return saveData()
         } catch (e: Exception) {
             e.printStackTrace()
-            return context.getString(R.string.passport_read_error)
+            return e.message
         }
     }
 
@@ -86,7 +87,8 @@ class PassportReadTask(
         val firstName = mrz?.secondaryIdentifier?.replace("<", "")
         val lastName = mrz?.primaryIdentifier?.replace("<", "")
         val name = "$firstName $lastName"
-        val identity = Identity(publicKey!!, bacKey.documentNumber, name, mrz?.gender.toString(),
+        val identity = Identity(
+            publicKey!!, bacKey.documentNumber, name, mrz?.gender.toString(),
             bacKey.dateOfBirth, bacKey.dateOfExpiry, mrz?.issuingState!!,
             mrz.nationality!!, ISO9796SHA1
         )

@@ -24,7 +24,7 @@ class PassportSignTask(
             val cardService = CardService.getInstance(nfc)
             cardService.open()
 
-            val service = PassportService(cardService, PassportService.DEFAULT_MAX_BLOCKSIZE)
+            val service = PassportService(cardService, PassportService.NORMAL_MAX_TRANCEIVE_LENGTH, PassportService.DEFAULT_MAX_BLOCKSIZE, false, true)
             service.open()
             var paceSucceeded = false
             try {

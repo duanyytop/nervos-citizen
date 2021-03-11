@@ -1,13 +1,15 @@
 package org.nervos.gw.passport
 
 import android.content.Context
+import com.google.gson.Gson
 import org.bouncycastle.asn1.x509.Certificate
-import org.jmrtd.JMRTDSecurityProvider
 import org.jmrtd.PassportService
-import org.jmrtd.lds.DG15File
-import org.jmrtd.lds.DG1File
-import org.jmrtd.lds.DG2File
+import org.jmrtd.Util
 import org.jmrtd.lds.SODFile
+import org.jmrtd.lds.icao.DG15File
+import org.jmrtd.lds.icao.DG1File
+import org.jmrtd.lds.icao.DG2File
+import org.nervos.ckb.utils.Numeric
 import org.nervos.gw.utils.CSCAMasterUtil
 import org.nervos.gw.utils.HexUtil
 import org.nervos.gw.utils.ISO9796SHA1
@@ -27,10 +29,11 @@ import javax.crypto.Cipher
 class PassportActions(_service: PassportService) {
     private val service = _service
 
+    @Throws(Exception::class)
     fun doPassiveAuth(context: Context): Boolean {
-        val dg1File = DG1File(service.getInputStream(PassportService.EF_DG1))
-        val dg2File = DG2File(service.getInputStream(PassportService.EF_DG2))
-        val sodFile = SODFile(service.getInputStream(PassportService.EF_SOD))
+        val dg1File = DG1File(service.getInputStream(PassportService.EF_DG1, PassportService.DEFAULT_MAX_BLOCKSIZE))
+        val dg2File = DG2File(service.getInputStream(PassportService.EF_DG2, PassportService.DEFAULT_MAX_BLOCKSIZE))
+        val sodFile = SODFile(service.getInputStream(PassportService.EF_SOD, PassportService.DEFAULT_MAX_BLOCKSIZE))
         val digest = MessageDigest.getInstance(sodFile.digestAlgorithm)
         val dataHashes = sodFile.dataGroupHashes
         val dg1Hash = digest.digest(dg1File.encoded)
@@ -62,15 +65,22 @@ class PassportActions(_service: PassportService) {
             val cpv = CertPathValidator.getInstance(CertPathValidator.getDefaultType())
             cpv.validate(cp, pkixParameters)
 
+            val digest = MessageDigest.getInstance("SHA-256")
+            digest.update(Numeric.hexStringToByteArray("3081d8020100300d060960864801650304020105003081c3302502010104206f896cb0dfe6f6f4f9290558bca0afbfea9931882e858e7317c06381c84c033a302502010204200972b2ce1d907d4abee62f06b6179f3faa0c73f0ca7fb32a9126b267c4f7b2a3302502010b042038fd52ff11243dd6591bf68d4b66dba079e20ef8fffc1bbf03fabb771acea5c3302502010c0420ae4bba015b391df89ee3365c8c184ffcf9bb7e825a30077b73877278974e7a28302502010f042090c412da870438568046bf2b92794d0828d1543acb9590ebf9fd1eb977983f86"))
+            val hash = digest.digest()
+            println("ContentInfo Hash: ${Numeric.toHexString(hash)}")
+
             val sign = Signature.getInstance(sodFile.digestEncryptionAlgorithm)
             // Initializes this object for verification, using the public key from the given certificate.
             sign.initVerify(docSigningCertificate)
+            println("eContent: ${Numeric.toHexString(sodFile.eContent)}")
             sign.update(sodFile.eContent)
             return sign.verify(sodFile.encryptedDigest)
         }
         return false
     }
 
+    @Throws(Exception::class)
     fun doActiveAuth(): Boolean {
         val pubKey = getAAPublicKey()
         val random = java.util.UUID.randomUUID().toString().replace("-", "").substring(0, 16)
@@ -108,10 +118,8 @@ class PassportActions(_service: PassportService) {
     fun signData(data: ByteArray?): ByteArray {
         var is15: InputStream? = null
         return try {
-            is15 = service.getInputStream(PassportService.EF_DG15)
-            // doAA of JMRTD library only returns signed data, and does not have the AA functionality yet
-            // there is no need for sending public key information with the method.
-            service.doAA(null, null, null, data)
+            is15 = service.getInputStream(PassportService.EF_DG15, PassportService.DEFAULT_MAX_BLOCKSIZE)
+            service.doAA(null, null, null, data).response
         } catch (ex: Exception) {
             ex.printStackTrace()
             throw ex
@@ -134,7 +142,10 @@ class PassportActions(_service: PassportService) {
     @Throws(Exception::class)
     fun verifySignature(pubKey: PublicKey, origin: ByteArray?, signature: ByteArray): Boolean {
         require(!(origin == null || origin.size != 8)) { "AA failed: bad origin" }
-        val aaSignature = Signature.getInstance(ISO9796SHA1, JMRTDSecurityProvider.getBouncyCastleProvider())
+        val aaSignature = Signature.getInstance(
+            ISO9796SHA1,
+            Util.getBouncyCastleProvider()
+        )
         val aaDigest = MessageDigest.getInstance("SHA1")
         val aaCipher = Cipher.getInstance("RSA/NONE/NoPadding")
         aaCipher.init(Cipher.DECRYPT_MODE, pubKey)
